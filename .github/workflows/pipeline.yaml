@@ -6,23 +6,21 @@ on:
       - '**'
 
 jobs:
-  test:
-    runs-on: ubuntu-22.04
-    container: python:3.12-slim
-
+  lint:
+    name: Lint ${{ matrix.hook }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        hook: [ "black", "isort" ]
     steps:
-    - name: Check out repository
-      uses: actions/checkout@v3
-
-    - name: Install dependencies
-      run: |
-        pip install --no-cache-dir black isort pytest pytest-django
-
-    - name: Run Black
-      run: black --check .
-
-    - name: Run isort
-      run: isort --check-only .
-
-    - name: Run Pytest
-      run: pytest
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Lint ${{ matrix.hook }}
+        uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: ${{ matrix.hook }} --all-files

@@ -1,0 +1,15 @@
+build:
+  docker:
+    web: config/prod/Dockerfile
+
+
+setup:
+  addons:
+    - plan: heroku-postgresql
+      as: DATABASE
+    - plan: heroku-redis
+      as: REDIS
+
+  config:
+    ENVIRONMENT: development
+    DJANGO_SECRET_KEY: "secret key"
