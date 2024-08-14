@@ -1,0 +1,70 @@
+services:
+  play-django:
+    container_name: play-django
+    build:
+      context: .
+      dockerfile: docker/dev/django.Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    stdin_open: true
+    tty: true
+
+  play-celery:
+    container_name: play-celery
+    build:
+      context: .
+      dockerfile: docker/dev/celery.Dockerfile
+    depends_on:
+      - play-django
+      - play-db
+      - play-redis
+    volumes:
+      - .:/app
+    ports:
+      - "6900-6910:6900-6910"
+    env_file:
+      - .env
+    environment:
+      - CELERY_RDB_HOST=0.0.0.0
+    stdin_open: true
+    tty: true
+
+  play-db:
+    image: postgres:15.3
+    container_name: play-db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    ports:
+      - "5436:5432"
+
+  curio-db-replica:
+    image: postgres:latest
+    container_name: curio-db-replica
+    volumes:
+      - curio_db_replica:/var/lib/postgresql/data
+      - .:/backup
+    environment:
+      - POSTGRES_DB=${REPLICA_DB}
+      - POSTGRES_HOST=${REPLICA_HOST}
+      - POSTGRES_USER=${REPLICA_SUPERUSER}
+      - POSTGRES_PASSWORD=${REPLICA_SUPERUSER_PASSWORD}
+    ports:
+      - "5437:5432"
+
+  play-redis:
+    image: redis:7.0-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+volumes:
+  postgres_data: { }
+  curio_db_replica: { }
+  redis_data: { }

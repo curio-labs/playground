@@ -1,0 +1,26 @@
+name: Pipeline
+
+on:
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  lint:
+    name: Lint ${{ matrix.hook }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        hook: [ "black", "isort" ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Lint ${{ matrix.hook }}
+        uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: ${{ matrix.hook }} --all-files

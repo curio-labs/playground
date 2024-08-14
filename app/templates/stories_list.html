@@ -1,0 +1,9 @@
+<ul class="text-black list-disc list-inside bg-gray-800 rounded-lg shadow-lg p-6">
+    {% for story in stories %}
+    <li class="py-2 border-b border-gray-600 last:border-none text-gray-200">
+        {{ story.title }}
+    </li>
+    {% empty %}
+    <li class="py-2 text-red-500 font-semibold">No stories available.</li>
+    {% endfor %}
+</ul>
