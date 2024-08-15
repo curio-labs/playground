@@ -1,0 +1,66 @@
+[tool.ruff]
+line-length = 120
+
+
+#select = ["E", "F", "N", "T", "W", "C"]
+
+[tool.ruff.lint]
+# Select linting rules by lint tool
+select = [
+    # Pyflakes (logical errors, unused imports, etc.)
+    "A",    # Pyflakes errors
+    "F",    # Pyflakes warnings
+
+    # PEP8 (coding style errors and warnings)
+    "E",    # PEP8 errors
+    "W",    # PEP8 warnings
+
+    # McCabe (code complexity)
+    "C90",  # McCabe complexity (e.g., max complexity)
+
+    # PEP257 (docstring conventions)
+#    "D",    # Docstring conventions
+
+    # Isort (import sorting)
+    "I",    # Import sorting rules
+
+    # Flake8-Quotes (consistency in quotes for strings)
+    "Q",    # Quotes linting rules
+
+    # Bandit (security checks)
+#    "S",    # Security-related errors
+
+    # Pyupgrade (Python version upgrades)
+    "UP",   # Python version upgrade checks
+
+    # Bugbear (best practices and potential issues)
+    "B",    # Bugbear-related rules
+
+    # Ruff (ruff-specific checks and errors)
+#    "RUF",  # Ruff-specific linting
+
+    # Type hinting checks
+#    "ANN",  # Annotations (type hints)
+    "T",    # Type hinting errors
+
+    # Naming conventions (PEP8 naming)
+    "N",    # Naming conventions
+
+    # Python intelligent enforcement (best practices)
+    "PIE",  # Best practice enforcement
+
+    # Pylint rules
+#    "PL",   # Pylint rules
+
+    # Input-related rules (specific to ruff)
+#    "INP",  # Input-related rules
+
+    # Simplifications (restructuring code for simplicity)
+#    "SIM",  # Code simplifications
+
+    # Pygments-based highlighting (source code linting in docstrings)
+    "PGH",  # Pygments-based highlighting
+
+    # Error rules for the 'era' library (Python 3.11 runtime compatibility)
+    "ERA",  # 'era' library checks
+]

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Django Page with HTMX and TailwindCSS</title>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/output.css' %}" type="text/css">
+    <script>
+      // Fetch CSRF token from /utilities/csrf_token
+      document.addEventListener('DOMContentLoaded', function () {
+        fetch('/utility/get-csrf-token/')
+          .then(response => response.text())
+          .then(token => {
+            document.querySelectorAll('[name=csrf-token]').forEach(function (input) {
+              input.value = token;
+            });
+          });
+      });
+    </script>
+</head>
+<body class="bg-black p-6">
+<div id="loading-indicator"
+     class="hidden text-center fixed top-0 left-0 w-full h-full flex items-center justify-center bg-opacity-50 bg-gray-800">
+    <svg class="animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+    </svg>
+    <div class="text-white ml-3">Loading...</div>
+</div>
+
+<div class="container mx-auto text-white">
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 mx-64 my-16">
+        <!-- Story Title -->
+        <h1 class="text-3xl font-bold text-white mb-4">{{ story.title }}</h1>
+
+        <h1 class="text-md font-bold text-white mb-4">{{ story.id }}</h1>
+        <h1 class="text-md font-bold text-white mb-4">{{ story.publication }}</h1>
+            <!-- Story Metadata (optional) -->
+            <div class="flex items-center text-gray-400 text-sm mb-6">
+                <span class="mr-2">By: {{ story.author }}</span> <!-- Assuming there is an author field -->
+                <span class="mr-2">|</span>
+                <span class="mr-2">{{ story.published_at|date:"F j, Y" }}</span> <!-- Date of publication -->
+                <span class="mr-2">|</span>
+                <span class="mr-2">{{ story.publication }}</span> <!-- Assuming there is a category field -->
+                <span class="mr-2">|</span>
+                <span class="mr-2">{{ story.classification }}</span> <!-- Assuming there is a category field -->
+            </div>
+
+        <!--     Story Image (optional)-->
+        <!--    {% if story.image %}-->
+        <!--    <div class="mb-6">-->
+        <!--        <img src="{{ story.image.url }}" alt="{{ story.title }}" class="w-full h-auto rounded-lg shadow-md">-->
+        <!--    </div>-->
+        <!--    {% endif %}-->
+
+        <!-- Story Content -->
+        <div class="text-gray-300 leading-relaxed space-y-4">
+            <p>{{ story.text }}</p>
+        </div>
+
+        <!-- Optional Footer (e.g., tags or additional information) -->
+        <!--    <div class="mt-6 flex flex-wrap">-->
+        <!--        {% for tag in story.tags.all %}-->
+        <!--        <span class="bg-gray-600 text-gray-300 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">{{ tag.name }}</span>-->
+        <!--        {% endfor %}-->
+        <!--    </div>-->
+    </div>
+</div>
+</body>
+</html>

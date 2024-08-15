@@ -1,0 +1,14 @@
+django
+django-environ
+psycopg2-binary
+gunicorn
+uvicorn
+pytest
+dj_database_url
+celery
+redis
+ruff
+httpx
+pydantic
+openai
+whitenoise
