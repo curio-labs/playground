@@ -1,0 +1,4 @@
+{
+  "buildpack": "python3.11.slim",
+  "buildpackadon: "apt",
+}
