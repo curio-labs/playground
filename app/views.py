@@ -11,7 +11,15 @@ from src import services
 
 
 def index(request):
-    return render(request, "index.html", {"foo": "bar"})
+    return render(request, "index.html")
+
+
+def simple_ranking(request):
+    return render(request, "simple_ranking.html")
+
+
+def score_ranking(request):
+    return render(request, "score_ranking.html")
 
 
 def get_random_stories(limit=50):
@@ -20,15 +28,32 @@ def get_random_stories(limit=50):
 
 @csrf.csrf_exempt
 @http.require_POST
-def prompt(request):
+def simple_ranking_prompt(request):
     # This function should take an LLM prompt, send it as system prompt to chatgpt along with the content of
     # 50 stories from the database, and return the generated text.
     prompt_value = request.POST.get("prompt-value")
     story_limit = int(request.POST.get("story-limit"))
 
     stories = get_random_stories(limit=story_limit)
-    data = services.make_llm_request(stories, prompt=prompt_value, limit=story_limit)
+    data = services.make_llm_request_for_story_batch(
+        stories, prompt=prompt_value, limit=story_limit
+    )
     html = render_to_string("stories_list.html", {"stories": data["stories"]})
+    return HttpResponse(html)
+
+
+@csrf.csrf_exempt
+@http.require_POST
+def score_ranking_prompt(request):
+    prompt_value = request.POST.get("prompt-value")
+    story_limit = int(request.POST.get("story-limit"))
+
+    stories = get_random_stories(limit=story_limit)
+    data = services.make_concurrent_llm_requests_for_stories(
+        stories=stories,
+        prompt=prompt_value,
+    )
+    html = render_to_string("score_stories_list.html", {"stories": data})
     return HttpResponse(html)
 
 
@@ -47,7 +72,6 @@ def load_stories(request):
             author=story["author"],
             type=story["type"],
             classification=story["classification"],
-
         )
 
     return JsonResponse(stories)

@@ -22,62 +22,31 @@
     </script>
 </head>
 <body class="bg-black p-6">
-<div id="loading-indicator"
-     class="hidden text-center fixed top-0 left-0 w-full h-full flex items-center justify-center bg-opacity-50 bg-gray-800">
-    <svg class="animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-    </svg>
-    <div class="text-white ml-3">Loading...</div>
-</div>
 
 <div class="container mx-auto text-white">
+    <div class="text-center text-2xl font-bold text-white mb-6">
+        CurioAI Playground
+    </div>
     <input name="csrf-token" id="csrf-token" type="hidden"/>
+    <div class="grid grid-cols-12 text-white mt-6">
+        <div class="col-span-4 font-bold p-4 bg-gray-800 text-center">Page</div>
+        <div class="col-span-4 font-bold p-4 bg-gray-800 text-center">Description</div>
+        <div class="col-span-4 font-bold p-4 bg-gray-800 text-center">Status</div>
 
-    <div class="grid grid-cols-12 gap-4 min-vw-100">
-        <!-- Main content spanning 8 columns -->
-        <div class="col-span-8 grid grid-cols-12 gap-4 p-4">
-            <div class="col-span-12 text-2xl">NAME</div>
-
-            <label class="col-span-3 hidden" for="prompt-name">NAME</label>
-            <input id="prompt-name" name="prompt-name" class="disabled hidden col-span-9 input-primary"
-                   placeholder="<name of prompt creator's choice, to save prompt>"/>
-
-            <label class="col-span-3" for="prompt-value">PROMPT</label>
-            <textarea name="prompt-value" id="prompt-value"
-                      class="col-span-9 bg-gray-500 py-2 rounded-sm text-white text-center border border-rioRed shadow-md focus:outline-none focus:ring-rioRed"
-                      placeholder="Enter your prompt here..."></textarea>
-
-            <label class="col-span-3 " for="story-limit">STORY LIMIT</label>
-            <input id="story-limit" name="story-limit" class="col-span-3 input-primary" type="number" value="10"
-                   max="20" min="1" placeholder="<name of prompt creator's choice, to save prompt>"/>
-
-            <button class="col-start-4 col-span-3 btn-primary"
-                    hx-post="/prompt/"
-                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                    hx-target="#output-box"
-                    hx-swap="innerHTML"
-                    hx-include="[name=story-limit], [name=prompt-value]"
-                    hx-indicator="#loading-indicator"
-            >RUN
-            </button>
-
-            <!--        <button class="mr-2 col-span-2 bg-rioRedDark text-black text-center py-2 rounded-sm shadow-md hover:bg-rioRedDark focus:outline-none focus:ring focus:ring-rioRed focus:ring-opacity-75"-->
-            <!--                disabled>SAVE-->
-            <!--        </button>-->
-
-            <div class="col-start-1 col-span-4 flex flex-row gap-3 justify-content-between my-4">
-                <div class="py-2">KEY</div>
-                <div class="input-primary px-2">USER EDITABLE FIELDS</div>
-            </div>
+        <div class="col-span-4 p-4 bg-gray-700 text-center font-bold">
+            <a href="/simple-ranking" class="text-blue-600 hover:underline">Simple Ranking</a>
         </div>
-        <div class="sticky col-start-9 col-span-4 row-span-3">
-            <div id="output-box" class="text-sm">OUTPUT
-                <ul class="text-black list-disc list-inside bg-gray-800 rounded-lg shadow-lg mt-6 mr-6 py-64">
-                </ul>
-            </div>
+        <div class="col-span-4 p-4 bg-gray-700 text-center">A simple ranking page based on user input</div>
+        <div class="col-span-4 p-4 bg-gray-700 text-center font-bold">
+            <span id="simple_ranking_status" class="text-green-400">Ready</span>
+        </div>
 
-
+        <div class="col-span-4 p-4 bg-gray-700 text-center">
+            <a href="/score-ranking" class="text-blue-600 font-bold hover:underline">Score Ranking</a>
+        </div>
+        <div class="col-span-4 p-4 bg-gray-700 text-center">A score-based ranking page with advanced features</div>
+        <div class="col-span-4 p-4 bg-gray-700 text-center font-bold">
+            <span id="score_ranking_status" class="text-green-400">Ready</span>
         </div>
     </div>
 </div>
