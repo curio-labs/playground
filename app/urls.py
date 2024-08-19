@@ -18,6 +18,7 @@ urlpatterns = [
     path("load-stories/", views.load_stories, name="load_stories"),
     path("utility/get-csrf-token/", uv.get_csrf_token, name="get_csrf_token"),
     path("api/stories/<str:story_id>/", views.get_story_by_id, name="get_story_by_id"),
+    path("api/scripts/<str:story_id>/", views.get_script, name="get_script"),
     path("add/", views.add_task, name="add"),
     path(
         "check_task_status/<str:task_id>/",

@@ -38,16 +38,16 @@
 
         <h1 class="text-md font-bold text-white mb-4">{{ story.id }}</h1>
         <h1 class="text-md font-bold text-white mb-4">{{ story.publication }}</h1>
-            <!-- Story Metadata (optional) -->
-            <div class="flex items-center text-gray-400 text-sm mb-6">
-                <span class="mr-2">By: {{ story.author }}</span> <!-- Assuming there is an author field -->
-                <span class="mr-2">|</span>
-                <span class="mr-2">{{ story.published_at|date:"F j, Y" }}</span> <!-- Date of publication -->
-                <span class="mr-2">|</span>
-                <span class="mr-2">{{ story.publication }}</span> <!-- Assuming there is a category field -->
-                <span class="mr-2">|</span>
-                <span class="mr-2">{{ story.classification }}</span> <!-- Assuming there is a category field -->
-            </div>
+        <!-- Story Metadata (optional) -->
+        <div class="flex items-center text-gray-400 text-sm mb-6">
+            <span class="mr-2">By: {{ story.author }}</span> <!-- Assuming there is an author field -->
+            <span class="mr-2">|</span>
+            <span class="mr-2">{{ story.published_at|date:"F j, Y" }}</span> <!-- Date of publication -->
+            <span class="mr-2">|</span>
+            <span class="mr-2">{{ story.publication }}</span> <!-- Assuming there is a category field -->
+            <span class="mr-2">|</span>
+            <span class="mr-2">{{ story.classification }}</span> <!-- Assuming there is a category field -->
+        </div>
 
         <!--     Story Image (optional)-->
         <!--    {% if story.image %}-->
@@ -57,8 +57,13 @@
         <!--    {% endif %}-->
 
         <!-- Story Content -->
-        <div class="text-gray-300 leading-relaxed space-y-4">
-            <p>{{ story.text }}</p>
+
+        <div class="text-gray-300 leading-relaxed space-y-4"
+             hx-get="/api/scripts/{{ story.id }}/"
+             hx-trigger="load"
+             hx-target="#story-text"
+             hx-indicator="#loading-indicator">
+            <p id="story-text">Loading story content...</p>
         </div>
 
         <!-- Optional Footer (e.g., tags or additional information) -->

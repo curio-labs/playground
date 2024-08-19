@@ -1,4 +1,6 @@
 from celery.result import AsyncResult
+import os
+import httpx
 from django.http import Http404
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -137,3 +139,44 @@ def get_story_by_id(request, story_id):
     except md.Story.DoesNotExist:
         # If the story is not found, raise a 404
         raise Http404("Story not found")
+
+
+@csrf.csrf_exempt
+@http.require_GET
+def get_script(request, story_id):
+    try:
+
+        url = f"https://api.services.curio.io/api/scripts/script/{story_id}/"
+        token = get_firebase_token()
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
+        response = httpx.get(url, headers=headers)
+
+        external_data = response.json()
+
+        paragraphs = render_to_string(
+            "script.html", {"paragraphs": external_data["paragraphs"]}
+        )
+        return HttpResponse(paragraphs)
+
+    except md.Story.DoesNotExist:
+        raise Http404("Story not found")
+    except httpx.RequestError:
+        return HttpResponse("Error fetching external paragraphs.", status=500)
+
+
+def get_firebase_token():
+    url = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
+    querystring = {"key": os.environ["FIREBASE_API_KEY"]}
+    payload = {
+        "email": os.environ["CURIO_AI_ADMIN_EMAIL"],
+        "password": os.environ["CURIO_AI_ADMIN_PASSWORD"],
+        "returnSecureToken": True,
+    }
+    headers = {"Content-Type": "application/json", "User-Agent": "insomnia/8.6.1"}
+
+    response = httpx.post(url, json=payload, headers=headers, params=querystring)
+
+    return response.json()["idToken"]
