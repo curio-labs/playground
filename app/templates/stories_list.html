@@ -7,7 +7,9 @@
     {% for story in stories %}
     <li class="py-2 border-b border-gray-600 last:border-none text-gray-200 hover:bg-gray-700">
         <!-- Use an anchor tag to open the story in a new tab -->
-        <a href="/api/stories/{{ story.id }}" target="_blank" class="cursor-pointer text-gray-200 hover:underline">
+        <input type="hidden" name="story-id" value="{{story.id}}"/>
+        <a href="/api/stories/{{ story.id }}" id="{{story.id}}" target="_blank"
+           class="cursor-pointer text-gray-200 hover:underline">
             {{ story.title }}
         </a>
     </li>

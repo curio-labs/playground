@@ -8,6 +8,10 @@
         @apply bg-rioRed text-white text-center py-2 rounded-sm shadow-md hover:bg-rioRedDark focus:outline-none focus:ring-rioRed focus:ring-opacity-75;
     }
 
+    .btn-secondary {
+        @apply bg-white text-rioRed text-center py-2 rounded-sm shadow-md hover:bg-rioRedDark focus:outline-none focus:ring-rioRed focus:ring-opacity-75;
+    }
+
     .input-primary {
         @apply bg-gray-500 text-white text-center py-2 rounded-sm border border-rioRed shadow-md focus:outline-none focus:ring-rioRed;
     }

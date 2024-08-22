@@ -47,10 +47,14 @@ def simple_ranking_prompt(request):
 @csrf.csrf_exempt
 @http.require_POST
 def score_ranking_prompt(request):
+    story_ids = request.POST.getlist("story-id")
     prompt_value = request.POST.get("prompt-value")
-    story_limit = int(request.POST.get("story-limit"))
 
-    stories = get_random_stories(limit=story_limit)
+    if not story_ids:
+        stories = get_random_stories(limit=int(request.POST.get("story-limit")))
+    else:
+        stories = md.Story.objects.filter(id__in=story_ids).all()
+
     data = services.make_concurrent_llm_requests_for_stories(
         stories=stories,
         prompt=prompt_value,

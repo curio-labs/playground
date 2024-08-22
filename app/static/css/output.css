@@ -602,6 +602,30 @@ video {
   --tw-ring-opacity: 0.75;
 }
 
+.btn-secondary {
+  border-radius: 0.125rem;
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  text-align: center;
+  color: rgba(255, 89, 86, 1);
+  --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(204, 71, 68, 1);
+}
+
+.btn-secondary:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  --tw-ring-color: rgba(255, 89, 86, 1);
+  --tw-ring-opacity: 0.75;
+}
+
 .input-primary {
   border-radius: 0.125rem;
   border-width: 1px;
@@ -676,8 +700,16 @@ video {
   grid-column-start: 4;
 }
 
+.col-start-8 {
+  grid-column-start: 8;
+}
+
 .col-start-9 {
   grid-column-start: 9;
+}
+
+.col-start-7 {
+  grid-column-start: 7;
 }
 
 .row-span-3 {
@@ -961,14 +993,9 @@ video {
   color: rgb(0 0 0 / var(--tw-text-opacity));
 }
 
-.text-blue-400 {
+.text-blue-600 {
   --tw-text-opacity: 1;
-  color: rgb(96 165 250 / var(--tw-text-opacity));
-}
-
-.text-blue-500 {
-  --tw-text-opacity: 1;
-  color: rgb(59 130 246 / var(--tw-text-opacity));
+  color: rgb(37 99 235 / var(--tw-text-opacity));
 }
 
 .text-gray-200 {
@@ -991,11 +1018,6 @@ video {
   color: rgb(74 222 128 / var(--tw-text-opacity));
 }
 
-.text-red-400 {
-  --tw-text-opacity: 1;
-  color: rgb(248 113 113 / var(--tw-text-opacity));
-}
-
 .text-red-500 {
   --tw-text-opacity: 1;
   color: rgb(239 68 68 / var(--tw-text-opacity));
@@ -1004,15 +1026,6 @@ video {
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
-.text-blue-600 {
-  --tw-text-opacity: 1;
-  color: rgb(37 99 235 / var(--tw-text-opacity));
-}
-
-.underline {
-  text-decoration-line: underline;
 }
 
 .opacity-25 {
@@ -1046,10 +1059,6 @@ video {
 
 .hover\:bg-rioRedDark:hover {
   background-color: rgba(204, 71, 68, 1);
-}
-
-.hover\:italic:hover {
-  font-style: italic;
 }
 
 .hover\:underline:hover {

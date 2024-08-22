@@ -64,6 +64,15 @@
                     hx-indicator="#loading-indicator"
             >RUN
             </button>
+            <button class="col-start-7 col-span-3 btn-secondary"
+                    hx-post="/score-ranking-prompt/"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-target="#output-box"
+                    hx-swap="innerHTML"
+                    hx-include="[name=story-id], [name=prompt-value]"
+                    hx-indicator="#loading-indicator"
+            >RUN AGAIN
+            </button>
 
             <!--        <button class="mr-2 col-span-2 bg-rioRedDark text-black text-center py-2 rounded-sm shadow-md hover:bg-rioRedDark focus:outline-none focus:ring focus:ring-rioRed focus:ring-opacity-75"-->
             <!--                disabled>SAVE-->
