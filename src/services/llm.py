@@ -24,21 +24,21 @@ class LLMMultiStoryResponse(BaseModel):
 
 
 class LLMSingleStoryValueResponse(BaseModel):
-    id: str
-    title: str
     value: float
 
 
 def make_llm_request_for_story_batch(stories, prompt: str, limit=10):
     # remove publication date from stories
-    content = [
-        {
-            "id": str(story.id),
+    story_llm_ids_lookup = {}
+    content = []
+    for idx, story in enumerate(stories):
+        story_llm_ids_lookup[idx] = story.id
+        data = {
+            "id": idx,
             "title": story.title,
             "text": story.text,
         }
-        for story in stories
-    ]
+        content.append(data)
     result = client.beta.chat.completions.parse(
         model=OPEN_AI_DEFAULT_MODEL,
         messages=[
@@ -50,12 +50,15 @@ def make_llm_request_for_story_batch(stories, prompt: str, limit=10):
 
     result = result.choices[0].message.parsed.json()
     result = json.loads(result)
-    return result
+    stories = result["stories"]
+    for story in stories:
+        idx = story["id"]
+        story["id"] = story_llm_ids_lookup[int(idx)]
+    return stories
 
 
 def make_llm_request_for_single_story(story, prompt: str):
     content = {
-        "id": str(story.id),
         "title": story.title,
         "text": story.text,
     }
@@ -70,6 +73,8 @@ def make_llm_request_for_single_story(story, prompt: str):
 
     result = result.choices[0].message.parsed.json()
     result = json.loads(result)
+    result["id"] = story.id
+    result["title"] = story.title
     return result
 
 

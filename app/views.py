@@ -40,7 +40,7 @@ def simple_ranking_prompt(request):
     data = services.make_llm_request_for_story_batch(
         stories, prompt=prompt_value, limit=story_limit
     )
-    html = render_to_string("stories_list.html", {"stories": data["stories"]})
+    html = render_to_string("stories_list.html", {"stories": data})
     return HttpResponse(html)
 
 
