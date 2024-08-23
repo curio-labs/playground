@@ -1,4 +1,5 @@
 import os
+import uuid
 
 import psycopg2
 
@@ -8,10 +9,15 @@ def get_stories(limit=10):
     database = os.environ["REPLICA_DB"]
     user = os.environ["REPLICA_USER"]
     password = os.environ["REPLICA_PASSWORD"]
+    if not isinstance(limit, int):
+        raise ValueError("limit should be an integer")
+    if limit < 1:
+        raise ValueError("limit should be greater than 0")
+    if limit > 100000:
+        raise ValueError("limit should be less than 100000")
 
     conn = psycopg2.connect(host=host, database=database, user=user, password=password)
-    query = (
-        """
+    query = f"""
     SELECT
         st.id, st.title, s.text, st.published_at, p.name as publication, st.author, st.type, st.classification
     FROM
@@ -25,22 +31,13 @@ def get_stories(limit=10):
         AND st.type != 'SEGMENT'
     ORDER BY
         st.published_at DESC
-    LIMIT %s;
+    LIMIT ({limit});
     """
-        % limit
-    )
 
     try:
-        # Open a cursor to perform database operations
         cur = conn.cursor()
-
-        # Execute the query
         cur.execute(query)
-
-        # Fetch all the results
         result = cur.fetchall()
-
-        # Convert result into a dictionary {table_name: row_count}
         table_row_count_dict = [
             {
                 "id": row[0],
@@ -54,13 +51,9 @@ def get_stories(limit=10):
             }
             for row in result
         ]
-
-        # Close the cursor and connection
         cur.close()
         conn.close()
-
         return {"total": len(table_row_count_dict), "data": table_row_count_dict}
-
     except Exception as e:
         print(f"An error occurred: {e}")
         return {}
@@ -89,30 +82,75 @@ def get_table_row_counts(
     """
 
     try:
-        # Open a cursor to perform database operations
         cur = conn.cursor()
-
-        # Execute the query
         cur.execute(query)
-
-        # Fetch all the results
         result = cur.fetchall()
-
-        # Convert result into a dictionary {table_name: row_count}
         table_row_count_dict = {row[0]: row[1] for row in result}
-
-        # Close the cursor and connection
         cur.close()
         conn.close()
-
         return table_row_count_dict
-
     except Exception as e:
         print(f"An error occurred: {e}")
         return {}
 
 
-# Usage
-if __name__ == "__main__":
-    print(get_stories())
-    # print(get_table_row_counts())
+def get_stories_by_id(story_ids):
+    host = os.environ["REPLICA_HOST"]
+    database = os.environ["REPLICA_DB"]
+    user = os.environ["REPLICA_USER"]
+    password = os.environ["REPLICA_PASSWORD"]
+
+    # do security check on the list and make sure it's a list of uuids
+    if not isinstance(story_ids, list):
+        raise ValueError("story_ids should be a list of story ids")
+    for story_id in story_ids:
+        try:
+            uuid.UUID(story_id, version=4)
+        except ValueError:
+            raise ValueError("story_ids should be a list of valid story ids")
+
+    story_ids_placeholder = ", ".join(["%s"] * len(story_ids))
+
+    conn = psycopg2.connect(host=host, database=database, user=user, password=password)
+
+    query = f"""
+        SELECT
+            st.id, st.title, s.text, st.published_at, p.name as publication, st.author, st.type, st.classification
+        FROM
+            content_story st
+        INNER JOIN
+            scripts_script s on s.story_id = st.id
+        INNER JOIN
+            content_publication p on p.id = st.publication_id
+        WHERE
+            st.id IN ({story_ids_placeholder})
+        ORDER BY
+            st.published_at DESC;
+    """
+
+    try:
+        cur = conn.cursor()
+        cur.execute(query, (*story_ids,))
+        result = cur.fetchall()
+        table_row_count_dict = [
+            {
+                "id": row[0],
+                "title": row[1],
+                "text": row[2],
+                "published_at": row[3],
+                "publication": row[4],
+                "author": row[5],
+                "type": row[6],
+                "classification": row[7],
+            }
+            for row in result
+        ]
+
+        cur.close()
+        conn.close()
+
+        return {"total": len(table_row_count_dict), "data": table_row_count_dict}
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return {}

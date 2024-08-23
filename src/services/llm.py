@@ -75,6 +75,7 @@ def make_llm_request_for_single_story(story, prompt: str):
     result = json.loads(result)
     result["id"] = story.id
     result["title"] = story.title
+    result["value"] = result["value"] if result["value"] is not None else 0
     return result
 
 

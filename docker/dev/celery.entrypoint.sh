@@ -1,5 +1,5 @@
 #!/bin/bash
 set -e
 
-# Start Celery worker
 celery -A config worker --loglevel=info
+celery -A config beat --loglevel=info

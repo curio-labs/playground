@@ -15,7 +15,6 @@ urlpatterns = [
     path(
         "score-ranking-prompt/", views.score_ranking_prompt, name="score_ranking_prompt"
     ),
-    path("load-stories/", views.load_stories, name="load_stories"),
     path("utility/get-csrf-token/", uv.get_csrf_token, name="get_csrf_token"),
     path("api/stories/<str:story_id>/", views.get_story_by_id, name="get_story_by_id"),
     path("api/scripts/<str:story_id>/", views.get_script, name="get_script"),

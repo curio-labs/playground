@@ -12,3 +12,4 @@ httpx
 pydantic
 openai
 whitenoise
+django-celery-beat

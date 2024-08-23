@@ -1,4 +1,6 @@
 from celery.result import AsyncResult
+import datetime
+import random
 import os
 import httpx
 from django.http import Http404
@@ -10,6 +12,20 @@ from django.views.decorators import csrf, http
 
 from app import models as md, tasks
 from src import services
+
+REPLICATION_PERIODS = [
+    (datetime.time(0, 0), datetime.time(0, 30)),
+    (datetime.time(6, 0), datetime.time(6, 30)),
+    (datetime.time(12, 0), datetime.time(12, 30)),
+    (datetime.time(18, 0), datetime.time(18, 30)),
+]
+
+READABLE_PERIODS = [
+    ("00:00", "00:30"),
+    ("06:00", "06:30"),
+    ("12:00", "12:30"),
+    ("18:00", "18:30"),
+]
 
 
 def index(request):
@@ -24,15 +40,60 @@ def score_ranking(request):
     return render(request, "score_ranking.html")
 
 
+def get_repeat_stories(story_ids):
+    stories = services.get_stories_by_id(story_ids=story_ids)
+    stories = [
+        md.Story(
+            id=story["id"],
+            title=story["title"],
+            text=story["text"],
+            published_at=story["published_at"],
+            publication=story["publication"],
+            author=story["author"],
+            type=story["type"],
+            classification=story["classification"],
+        )
+        for story in stories["data"]
+    ]
+    return stories
+
+
 def get_random_stories(limit=50):
-    return md.Story.objects.order_by("?")[:limit]
+    stories = services.get_stories(limit=1000)["data"]
+    random.shuffle(stories)
+    stories = stories[:limit]
+    return [
+        md.Story(
+            id=story["id"],
+            title=story["title"],
+            text=story["text"],
+            published_at=story["published_at"],
+            publication=story["publication"],
+            author=story["author"],
+            type=story["type"],
+            classification=story["classification"],
+        )
+        for story in stories
+    ]
 
 
 @csrf.csrf_exempt
 @http.require_POST
 def simple_ranking_prompt(request):
-    # This function should take an LLM prompt, send it as system prompt to chatgpt along with the content of
-    # 50 stories from the database, and return the generated text.
+    now = datetime.datetime.now().time()
+    for start_time, end_time in REPLICATION_PERIODS:
+        if start_time <= now <= end_time:
+            html = f"""
+                <p>The database is currently replicating. Please try again later.</p>
+                <p>Replication occurs daily during the following periods:</p>
+                <ul>
+                    <li>00:00-00:30</li>
+                    <li>06:00-06:30</li>
+                    <li>12:00-12:30</li>
+                    <li>18:00-18:30</li>
+                </ul>
+            """
+            return HttpResponse(html)
     prompt_value = request.POST.get("prompt-value")
     story_limit = int(request.POST.get("story-limit"))
 
@@ -47,13 +108,26 @@ def simple_ranking_prompt(request):
 @csrf.csrf_exempt
 @http.require_POST
 def score_ranking_prompt(request):
+    now = datetime.datetime.now().time()
+    for start_time, end_time in REPLICATION_PERIODS:
+        if start_time <= now <= end_time:
+            html = f"""
+                <p>The database is currently replicating. Please try again later.</p>
+                <p>Replication occurs daily during the following periods:</p>
+                <ul>
+                    <li>00:00-00:30</li>
+                    <li>06:00-06:30</li>
+                    <li>12:00-12:30</li>
+                    <li>18:00-18:30</li>
+                </ul>
+            """
+            return HttpResponse(html)
     story_ids = request.POST.getlist("story-id")
     prompt_value = request.POST.get("prompt-value")
-
     if not story_ids:
         stories = get_random_stories(limit=int(request.POST.get("story-limit")))
     else:
-        stories = md.Story.objects.filter(id__in=story_ids).all()
+        stories = get_repeat_stories(story_ids=story_ids)
 
     data = services.make_concurrent_llm_requests_for_stories(
         stories=stories,
@@ -61,26 +135,6 @@ def score_ranking_prompt(request):
     )
     html = render_to_string("score_stories_list.html", {"stories": data})
     return HttpResponse(html)
-
-
-@csrf.csrf_exempt
-@http.require_GET
-def load_stories(request):
-    stories = services.get_stories(limit=1000)
-    md.Story.objects.all().delete()
-    for story in stories["data"]:
-        md.Story.objects.create(
-            id=story["id"],
-            title=story["title"],
-            text=story["text"],
-            published_at=story["published_at"],
-            publication=story["publication"],
-            author=story["author"],
-            type=story["type"],
-            classification=story["classification"],
-        )
-
-    return JsonResponse(stories)
 
 
 @csrf.csrf_exempt
@@ -132,7 +186,7 @@ def check_task_status(request, task_id):
 def get_story_by_id(request, story_id):
     try:
         # Fetch the story by ID
-        story = md.Story.objects.get(id=story_id)
+        story = services.get_stories_by_id([story_id])["data"][0]
 
         # Render the story into the story_detail.html template
         story_html = render_to_string("story_detail.html", {"story": story})
@@ -140,9 +194,8 @@ def get_story_by_id(request, story_id):
         # Return the rendered HTML as part of a JSON response
         return HttpResponse(story_html)
 
-    except md.Story.DoesNotExist:
-        # If the story is not found, raise a 404
-        raise Http404("Story not found")
+    except Exception as e:
+        raise Http404(f"Story with ID {story_id} not found: {e}")
 
 
 @csrf.csrf_exempt
@@ -165,10 +218,10 @@ def get_script(request, story_id):
         )
         return HttpResponse(paragraphs)
 
-    except md.Story.DoesNotExist:
-        raise Http404("Story not found")
     except httpx.RequestError:
         return HttpResponse("Error fetching external paragraphs.", status=500)
+    except Exception as e:
+        raise Http404(f"Story with ID {story_id} not found: {e}")
 
 
 def get_firebase_token():

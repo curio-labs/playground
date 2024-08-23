@@ -58,6 +58,7 @@ else:
     }
 
 INSTALLED_APPS = [
+    "django_celery_beat",
     "app",
     "django.contrib.admin",
     "django.contrib.auth",
