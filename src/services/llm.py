@@ -1,4 +1,5 @@
 import json
+import datetime
 import os
 
 from openai import OpenAI
@@ -57,11 +58,16 @@ def make_llm_request_for_story_batch(stories, prompt: str, limit=10):
     return stories
 
 
-def make_llm_request_for_single_story(story, prompt: str):
-    content = {
-        "title": story.title,
-        "text": story.text,
-    }
+def make_llm_request_for_single_story(story, prompt: str, attributes):
+    content = {}
+
+    for attribute in attributes:
+        value = getattr(story, attribute, None)
+        if isinstance(value, datetime.datetime):
+            content[attribute] = value.isoformat()
+        else:
+            content[attribute] = value
+
     result = client.beta.chat.completions.parse(
         model=OPEN_AI_DEFAULT_MODEL,
         messages=[
@@ -79,13 +85,16 @@ def make_llm_request_for_single_story(story, prompt: str):
     return result
 
 
-def make_concurrent_llm_requests_for_stories(prompt: str, stories: list[Story]):
+def make_concurrent_llm_requests_for_stories(
+    prompt: str, stories: list[Story], attributes: list[str] = None
+):
     tasks: TaskList = [
         (
             make_llm_request_for_single_story,
             (
                 story,
                 prompt,
+                attributes,
             ),
         )
         for story in stories

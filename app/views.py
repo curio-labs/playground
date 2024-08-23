@@ -37,7 +37,8 @@ def simple_ranking(request):
 
 
 def score_ranking(request):
-    return render(request, "score_ranking.html")
+    attributes = services.get_attributes()
+    return render(request, "score_ranking.html", {"attributes": attributes})
 
 
 def get_repeat_stories(story_ids):
@@ -58,8 +59,8 @@ def get_repeat_stories(story_ids):
     return stories
 
 
-def get_random_stories(limit=50):
-    stories = services.get_stories(limit=1000)["data"]
+def get_random_stories(batch_size=1000, limit=20):
+    stories = services.get_stories(limit=batch_size)["data"]
     random.shuffle(stories)
     stories = stories[:limit]
     return [
@@ -95,11 +96,19 @@ def simple_ranking_prompt(request):
             """
             return HttpResponse(html)
     prompt_value = request.POST.get("prompt-value")
+    batch_size = int(request.POST.get("story-limit"))
     story_limit = int(request.POST.get("story-limit"))
-
-    stories = get_random_stories(limit=story_limit)
+    if story_limit > batch_size:
+        html = f"""
+            <p>Story limit cannot exceed batch size.</p>
+            <p>Please try again.</p>
+        """
+        return HttpResponse(html)
+    stories = get_random_stories(batch_size=batch_size, limit=story_limit)
     data = services.make_llm_request_for_story_batch(
-        stories, prompt=prompt_value, limit=story_limit
+        stories=stories,
+        prompt=prompt_value,
+        limit=story_limit,
     )
     html = render_to_string("stories_list.html", {"stories": data})
     return HttpResponse(html)
@@ -124,14 +133,27 @@ def score_ranking_prompt(request):
             return HttpResponse(html)
     story_ids = request.POST.getlist("story-id")
     prompt_value = request.POST.get("prompt-value")
+    selected_attributes = []
+    for key in request.POST:
+        if key.startswith("attribute-"):
+            selected_attributes.append(request.POST[key])
     if not story_ids:
-        stories = get_random_stories(limit=int(request.POST.get("story-limit")))
+        batch_size = int(request.POST.get("story-limit"))
+        story_limit = int(request.POST.get("story-limit"))
+        if story_limit > batch_size:
+            html = f"""
+                <p>Story limit cannot exceed batch size.</p>
+                <p>Please try again.</p>
+            """
+            return HttpResponse(html)
+        stories = get_random_stories(batch_size=batch_size, limit=story_limit)
     else:
         stories = get_repeat_stories(story_ids=story_ids)
 
     data = services.make_concurrent_llm_requests_for_stories(
         stories=stories,
         prompt=prompt_value,
+        attributes=selected_attributes,
     )
     html = render_to_string("score_stories_list.html", {"stories": data})
     return HttpResponse(html)

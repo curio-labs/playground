@@ -51,7 +51,11 @@
                       class="col-span-9 bg-gray-500 py-2 rounded-sm text-white text-center border border-rioRed shadow-md focus:outline-none focus:ring-rioRed"
                       placeholder="Enter your prompt here..."></textarea>
 
-            <label class="col-span-3 " for="story-limit">STORY LIMIT</label>
+            <label class="col-start-1 col-span-3 " for="batch-size">BATCH SIZE (N recent stories)</label>
+            <input id="batch-size" name="batch-size" class="col-span-3 input-primary" type="number" value="1000"
+                   max="100" min="1" placeholder="<name of prompt creator's choice, to save prompt>"/>
+
+            <label class="col-start-1 col-span-3 " for="story-limit">STORY LIMIT (Y random stories from batch)</label>
             <input id="story-limit" name="story-limit" class="col-span-3 input-primary" type="number" value="10"
                    max="20" min="1" placeholder="<name of prompt creator's choice, to save prompt>"/>
 
@@ -60,7 +64,7 @@
                     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                     hx-target="#output-box"
                     hx-swap="innerHTML"
-                    hx-include="[name=story-limit], [name=prompt-value]"
+                    hx-include="[name=batch-size], [name=story-limit], [name=prompt-value]"
                     hx-indicator="#loading-indicator"
             >RUN
             </button>

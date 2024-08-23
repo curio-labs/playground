@@ -51,25 +51,47 @@
                       class="col-span-9 bg-gray-500 py-2 rounded-sm text-white text-center border border-rioRed shadow-md focus:outline-none focus:ring-rioRed"
                       placeholder="Enter your prompt here..."></textarea>
 
-            <label class="col-span-3 " for="story-limit">STORY LIMIT</label>
-            <input id="story-limit" name="story-limit" class="col-span-3 input-primary" type="number" value="20"
+            <label class="col-start-1 col-span-3 " for="batch-size">BATCH SIZE (N recent stories)</label>
+            <input id="batch-size" name="batch-size" class="col-span-3 input-primary" type="number" value="1000"
                    max="100" min="1" placeholder="<name of prompt creator's choice, to save prompt>"/>
 
+            <label class="col-start-1 col-span-3 " for="story-limit">STORY LIMIT (Y random stories from batch)</label>
+            <input id="story-limit" name="story-limit" class="col-span-3 input-primary" type="number" value="20"
+                   max="100" min="1" placeholder="<name of prompt creator's choice, to save prompt>"/>
+            <!-- Dynamic Checkboxes -->
+            <div class="col-span-12 text-xl mt-4">Select Story Attributes</div>
+
+            {% for attribute in attributes %}
+            <div class="col-span-3">
+                <input
+                        type="checkbox"
+                        id="attribute-{{ attribute.name }}"
+                        name="attribute-{{ attribute.name }}"
+                        value="{{ attribute.name }}"
+                        class="mr-2"
+                        {% if attribute.default %} checked {% endif %}>
+                <label for="attribute-{{ attribute.name }}">{{ attribute.name|title }}</label>
+            </div>
+            {% endfor %}
+
+            <!-- Button for Running Prompt with Dynamic Attributes -->
             <button class="col-start-4 col-span-3 btn-primary"
                     hx-post="/score-ranking-prompt/"
                     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                     hx-target="#output-box"
                     hx-swap="innerHTML"
-                    hx-include="[name=story-limit], [name=prompt-value]"
+                    hx-include="[name=batch-size], [name=story-limit], [name=prompt-value], [name^=attribute]"
                     hx-indicator="#loading-indicator"
             >RUN
             </button>
+
+            <!-- Button for Running Prompt Again with Dynamic Attributes -->
             <button class="col-start-7 col-span-3 btn-secondary"
                     hx-post="/score-ranking-prompt/"
                     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                     hx-target="#output-box"
                     hx-swap="innerHTML"
-                    hx-include="[name=story-id], [name=prompt-value]"
+                    hx-include="[name=story-id], [name=prompt-value], [name^=attribute]"
                     hx-indicator="#loading-indicator"
             >RUN AGAIN
             </button>
