@@ -40,7 +40,7 @@ def get_stories(limit=10):
         content_publication p on p.id = st.publication_id
     WHERE
         st.published_at::date <= current_date 
-        AND st.type != 'SEGMENT'
+        AND (st.type != 'SEGMENT' OR st.type IS NULL)
     ORDER BY
         st.published_at DESC
     LIMIT ({limit});
