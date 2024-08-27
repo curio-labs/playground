@@ -96,7 +96,7 @@ def simple_ranking_prompt(request):
             """
             return HttpResponse(html)
     prompt_value = request.POST.get("prompt-value")
-    batch_size = int(request.POST.get("story-limit"))
+    batch_size = int(request.POST.get("batch-size"))
     story_limit = int(request.POST.get("story-limit"))
     if story_limit > batch_size:
         html = f"""
@@ -138,7 +138,7 @@ def score_ranking_prompt(request):
         if key.startswith("attribute-"):
             selected_attributes.append(request.POST[key])
     if not story_ids:
-        batch_size = int(request.POST.get("story-limit"))
+        batch_size = int(request.POST.get("batch-size"))
         story_limit = int(request.POST.get("story-limit"))
         if story_limit > batch_size:
             html = f"""
