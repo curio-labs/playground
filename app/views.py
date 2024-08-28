@@ -59,8 +59,26 @@ def get_repeat_stories(story_ids):
     return stories
 
 
-def get_random_stories(batch_size=1000, limit=20):
-    stories = services.get_stories(limit=batch_size)["data"]
+def get_random_stories(
+    limit=20,
+    vector_search=False,
+    query=None,
+    start_date=None,
+):
+    if vector_search:
+        if query is None or start_date is None:
+            raise ValueError(
+                "Query and Start Date must be provided when vector_search is True."
+            )
+        stories = services.get_vector_search_stories(
+            start_date=start_date,
+            limit=1_000,
+            query=query,
+        )
+        story_ids = [story["id"] for story in stories]
+        stories = services.get_stories_by_id(story_ids=story_ids)["data"]
+    else:
+        stories = services.get_stories(limit=1_000, start_date=start_date)["data"]
     random.shuffle(stories)
     stories = stories[:limit]
     return [
@@ -96,15 +114,8 @@ def simple_ranking_prompt(request):
             """
             return HttpResponse(html)
     prompt_value = request.POST.get("prompt-value")
-    batch_size = int(request.POST.get("batch-size"))
     story_limit = int(request.POST.get("story-limit"))
-    if story_limit > batch_size:
-        html = f"""
-            <p>Story limit cannot exceed batch size.</p>
-            <p>Please try again.</p>
-        """
-        return HttpResponse(html)
-    stories = get_random_stories(batch_size=batch_size, limit=story_limit)
+    stories = get_random_stories(limit=story_limit)
     data = services.make_llm_request_for_story_batch(
         stories=stories,
         prompt=prompt_value,
@@ -124,32 +135,41 @@ def score_ranking_prompt(request):
                 <p>The database is currently replicating. Please try again later.</p>
                 <p>Replication occurs daily during the following periods:</p>
                 <ul>
-                    <li>00:00-00:30</li>
-                    <li>06:00-06:30</li>
-                    <li>12:00-12:30</li>
-                    <li>18:00-18:30</li>
+                    <li>01:00-01:30</li>
+                    <li>07:00-07:30</li>
+                    <li>13:00-13:30</li>
+                    <li>19:00-19:30</li>
                 </ul>
             """
             return HttpResponse(html)
     story_ids = request.POST.getlist("story-id")
     prompt_value = request.POST.get("prompt-value")
+    if not story_ids:
+        story_limit = int(request.POST.get("story-limit"))
+        vector_search = request.POST.get("vector-search")
+        start_date = int(request.POST.get("start-date"))
+        today = datetime.datetime.now()
+        start_date = (today - datetime.timedelta(days=start_date)).isoformat()
+        try:
+            stories = get_random_stories(
+                query=prompt_value,
+                limit=story_limit,
+                vector_search=vector_search,
+                start_date=start_date,
+            )
+        except ValueError as e:
+            html = f"""
+                <p>{e}</p>
+                <p>Please try again.</p>
+            """
+            return HttpResponse(html)
+    else:
+        stories = get_repeat_stories(story_ids=story_ids)
+
     selected_attributes = []
     for key in request.POST:
         if key.startswith("attribute-"):
             selected_attributes.append(request.POST[key])
-    if not story_ids:
-        batch_size = int(request.POST.get("batch-size"))
-        story_limit = int(request.POST.get("story-limit"))
-        if story_limit > batch_size:
-            html = f"""
-                <p>Story limit cannot exceed batch size.</p>
-                <p>Please try again.</p>
-            """
-            return HttpResponse(html)
-        stories = get_random_stories(batch_size=batch_size, limit=story_limit)
-    else:
-        stories = get_repeat_stories(story_ids=story_ids)
-
     data = services.make_concurrent_llm_requests_for_stories(
         stories=stories,
         prompt=prompt_value,

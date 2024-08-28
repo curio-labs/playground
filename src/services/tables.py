@@ -1,4 +1,6 @@
 import os
+import datetime
+import httpx
 import uuid
 
 import psycopg2
@@ -16,7 +18,7 @@ def get_attributes():
     ]
 
 
-def get_stories(limit=10):
+def get_stories(start_date, limit=10):
     host = os.environ["REPLICA_HOST"]
     database = os.environ["REPLICA_DB"]
     user = os.environ["REPLICA_USER"]
@@ -40,6 +42,7 @@ def get_stories(limit=10):
         content_publication p on p.id = st.publication_id
     WHERE
         st.published_at::date <= current_date 
+        AND st.published_at::date >= '{start_date}'  
         AND (st.type != 'SEGMENT' OR st.type IS NULL)
     ORDER BY
         st.published_at DESC
@@ -166,3 +169,23 @@ def get_stories_by_id(story_ids):
     except Exception as e:
         print(f"An error occurred: {e}")
         return {}
+
+
+def get_vector_search_stories(start_date, limit, query):
+    end_date_time = datetime.datetime.now().isoformat()
+    vector_db_url = "http://13.92.253.7"
+    headers = {
+        "accept": "application/json",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "query": str(query),
+        "n_results": limit,
+        "start_date_time": start_date,
+        "end_date_time": end_date_time,
+    }
+    response = httpx.post(
+        f"{vector_db_url}/search_articles/", headers=headers, json=payload
+    )
+    response.raise_for_status()
+    return response.json()[0]

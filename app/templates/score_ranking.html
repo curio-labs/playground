@@ -40,47 +40,74 @@
     <div class="grid grid-cols-12 gap-4 min-vw-100">
         <!-- Main content spanning 8 columns -->
         <div class="col-span-8 grid grid-cols-12 gap-4 p-4">
-            <div class="col-span-12 text-2xl">NAME</div>
+            <div class="col-span-12 text-2xl ">NAME</div>
 
             <label class="col-span-3 hidden" for="prompt-name">NAME</label>
             <input id="prompt-name" name="prompt-name" class="disabled hidden col-span-9 input-primary"
                    placeholder="<name of prompt creator's choice, to save prompt>"/>
 
-            <label class="col-span-3" for="prompt-value">PROMPT</label>
+            <label class="col-span-3 font-bold" for="prompt-value">PROMPT</label>
             <textarea name="prompt-value" id="prompt-value"
                       class="col-span-9 bg-gray-500 py-2 rounded-sm text-white text-center border border-rioRed shadow-md focus:outline-none focus:ring-rioRed"
                       placeholder="Enter your prompt here..."></textarea>
 
-            <label class="col-start-1 col-span-3 " for="batch-size">BATCH SIZE (N recent stories)</label>
-            <input id="batch-size" name="batch-size" class="col-span-3 input-primary" type="number" value="1000"
+            <label class="col-start-1 col-span-3 font-bold" for="start-date">START DATE (N days ago - 1000 stories max)</label>
+            <input id="start-date" name="start-date" class="col-span-3 input-primary" type="number" value="3"
                    max="100" min="1" placeholder="<name of prompt creator's choice, to save prompt>"/>
 
-            <label class="col-start-1 col-span-3 " for="story-limit">STORY LIMIT (Y random stories from batch)</label>
-            <input id="story-limit" name="story-limit" class="col-span-3 input-primary" type="number" value="20"
+            <label class="col-start-1 col-span-3 font-bold" for="story-limit">STORY LIMIT (Y random stories from
+                batch)</label>
+            <input id="story-limit" name="story-limit" class="col-span-3 input-primary mb-4" type="number" value="20"
                    max="100" min="1" placeholder="<name of prompt creator's choice, to save prompt>"/>
             <!-- Dynamic Checkboxes -->
-            <div class="col-span-12 text-xl mt-4">Select Story Attributes</div>
+            <div class="col-start-1 col-span-3 text-xl font-bold">Select Story Attributes</div>
 
-            {% for attribute in attributes %}
-            <div class="col-span-3">
-                <input
-                        type="checkbox"
-                        id="attribute-{{ attribute.name }}"
-                        name="attribute-{{ attribute.name }}"
-                        value="{{ attribute.name }}"
-                        class="mr-2"
-                        {% if attribute.default %} checked {% endif %}>
-                <label for="attribute-{{ attribute.name }}">{{ attribute.name|title }}</label>
+            <div class="col-span-9 col-start-4 grid grid-cols-12">
+                {% for attribute in attributes %}
+                <div class="col-span-3 mb-4">
+                    <input
+                            type="checkbox"
+                            id="attribute-{{ attribute.name }}"
+                            name="attribute-{{ attribute.name }}"
+                            value="{{ attribute.name }}"
+                            class="mr-2"
+                            {% if attribute.default %} checked {% endif %}>
+                    <label for="attribute-{{ attribute.name }}">{{ attribute.name|title }}</label>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
 
+            <div class="col-span-3 text-xl font-bold">Search Method</div>
+            <div class="col-span-9 col-start-4 grid grid-cols-12 mb-4">
+                <div class="col-span-3">
+                    <input
+                            type="checkbox"
+                            id="vector-search"
+                            name="vector-search"
+                            value="vector-search"
+                            class="mr-2"
+                            checked>
+                    <label for="vector-search">Vector Search</label>
+                </div>
+                <div class="col-span-3">
+                    <input
+                            type="checkbox"
+                            id="gpt-ranking"
+                            name="gpt-ranking"
+                            disabled
+                            value="gpt-ranking"
+                            class="mr-2"
+                            checked>
+                    <label for="gpt-ranking">GPT Ranking</label>
+                </div>
+            </div>
             <!-- Button for Running Prompt with Dynamic Attributes -->
             <button class="col-start-4 col-span-3 btn-primary"
                     hx-post="/score-ranking-prompt/"
                     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                     hx-target="#output-box"
                     hx-swap="innerHTML"
-                    hx-include="[name=batch-size], [name=story-limit], [name=prompt-value], [name^=attribute]"
+                    hx-include="[name=start-date], [name=story-limit], [name=prompt-value], [name^=attribute], [name=vector-search], [name=gpt-ranking]"
                     hx-indicator="#loading-indicator"
             >RUN
             </button>
@@ -91,14 +118,10 @@
                     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                     hx-target="#output-box"
                     hx-swap="innerHTML"
-                    hx-include="[name=story-id], [name=prompt-value], [name^=attribute]"
+                    hx-include="[name=story-id], [name=prompt-value], [name^=attribute], [name=vector-search], [name=gpt-ranking]"
                     hx-indicator="#loading-indicator"
             >RUN AGAIN
             </button>
-
-            <!--        <button class="mr-2 col-span-2 bg-rioRedDark text-black text-center py-2 rounded-sm shadow-md hover:bg-rioRedDark focus:outline-none focus:ring focus:ring-rioRed focus:ring-opacity-75"-->
-            <!--                disabled>SAVE-->
-            <!--        </button>-->
 
             <div class="col-start-1 col-span-4 flex flex-row gap-3 justify-content-between my-4">
                 <div class="py-2">KEY</div>
