@@ -970,6 +970,10 @@ video {
   align-self: flex-start;
 }
 
+.overflow-y-auto {
+  overflow-y: auto;
+}
+
 .overscroll-contain {
   overscroll-behavior: contain;
 }
