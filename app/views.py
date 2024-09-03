@@ -29,6 +29,10 @@ def rerank_stories(request):
     selected_attributes = [
         request.POST[key] for key in request.POST if key.startswith("attribute-")
     ]
+    for start_time, end_time in constants.REPLICATION_PERIODS:
+        now = datetime.datetime.now().time()
+        if start_time <= now <= end_time:
+            return HttpResponse(constants.REPLICATING_HTML_MSG)
 
     stories = []
     for story_id, vector_position, similarity_score in zip(
