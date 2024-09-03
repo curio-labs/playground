@@ -1,0 +1,108 @@
+<div class="text-2xl font-bold text-white mb-6">Controls</div>
+
+<div class="mb-6">
+    <label class="font-bold text-gray-300" for="prompt-name">Name</label>
+    <input id="prompt-name" name="prompt-name"
+           class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+           placeholder="Enter your save name here..."/>
+</div>
+
+<div class="mb-6">
+    <label class="font-bold text-gray-300" for="vector-query">Vector Search</label>
+    <textarea name="prompt-value" id="vector-query"
+              rows="4"
+              class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+              placeholder="Enter your vector search here..."></textarea>
+</div>
+
+<div class="mb-6">
+    <label class="font-bold text-gray-300" for="prompt-value">LLM Prompt</label>
+    <textarea name="prompt-value" id="prompt-value"
+              rows="4"
+              class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+              placeholder="Enter your LLM prompt here..."></textarea>
+</div>
+
+<div class="mb-6">
+    <label class="font-bold text-gray-300" for="start-date">Start Date (N days ago - 1000 stories max)</label>
+    <input id="start-date" name="start-date"
+           class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+           type="number" value="3"
+           max="100" min="1"/>
+</div>
+
+<div class="mb-6">
+    <label class="font-bold text-gray-300" for="story-limit">Story Limit (Y random stories from batch)</label>
+    <input id="story-limit" name="story-limit"
+           class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+           type="number" value="20"
+           max="100" min="1"/>
+</div>
+
+<div class="mb-6">
+    <div class="text-xl font-bold text-white">Select Story Attributes</div>
+    <div class="grid grid-cols-2 gap-4 mt-4">
+        {% for attribute in attributes %}
+        <div>
+            <input
+                    type="checkbox"
+                    id="attribute-{{ attribute.name }}"
+                    name="attribute-{{ attribute.name }}"
+                    value="{{ attribute.name }}"
+                    class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                    {% if attribute.default %} checked {% endif %}>
+            <label for="attribute-{{ attribute.name }}" class="text-gray-300">{{ attribute.name|title }}</label>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="mb-6">
+    <div class="text-xl font-bold text-white">Search Method</div>
+    <div class="grid grid-cols-2 gap-4 mt-4">
+        <div>
+            <input
+                    type="checkbox"
+                    id="vector-search"
+                    name="is-vector-search"
+                    value="is-vector-search"
+                    class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                    checked>
+            <label for="vector-search" class="text-gray-300">Vector Search</label>
+        </div>
+        <div>
+            <input
+                    type="checkbox"
+                    id="is-gpt-ranking"
+                    name="is-gpt-ranking"
+                    disabled
+                    value="gpt-ranking"
+                    class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                    checked>
+            <label for="is-gpt-ranking" class="text-gray-300">GPT Ranking</label>
+        </div>
+    </div>
+</div>
+
+<!-- Buttons for Running Prompt -->
+<div class="flex flex-col gap-4">
+    <button class="w-full py-3 bg-rioRed text-white rounded-md shadow hover:bg-rioRed-dark focus:outline-none"
+            hx-post="/score-ranking-prompt/"
+            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+            hx-target="#output-box"
+            hx-swap="innerHTML"
+            hx-include="[name=start-date], [name=story-limit], [name=prompt-value], [name^=attribute], [name=vector-search], [name=is-vector-search], [name=is-gpt-ranking]"
+            hx-indicator="#loading-indicator"
+    >Run
+    </button>
+
+    <button class="w-full py-3 bg-gray-700 text-white rounded-md shadow hover:bg-gray-600 focus:outline-none"
+            hx-post="/score-ranking-prompt/"
+            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+            hx-target="#output-box"
+            hx-swap="innerHTML"
+            hx-include="[name=story-id], [name=prompt-value], [name^=attribute], [name=vector-search], [name=is-vector-search], [name=is-gpt-ranking]"
+            hx-indicator="#loading-indicator"
+    >Run Again
+    </button>
+</div>

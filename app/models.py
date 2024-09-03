@@ -35,6 +35,14 @@ class Story(models.Model):
     type = models.CharField(max_length=1024, null=True)
     classification = models.CharField(max_length=1024, null=True)
 
+    @property
+    def similarity_score(self):
+        return getattr(self, "_similarity_score", None)
+
+    @similarity_score.setter
+    def similarity_score(self, value):
+        self._similarity_score = value
+
     def __str__(self):
         return self.title
 

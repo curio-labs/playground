@@ -61,26 +61,37 @@ def get_repeat_stories(story_ids):
 
 def get_random_stories(
     limit=20,
-    vector_search=False,
+    is_vector_search=False,
+    vector_search=None,
     query=None,
     start_date=None,
 ):
-    if vector_search:
+    if is_vector_search:
         if query is None or start_date is None:
             raise ValueError(
                 "Query and Start Date must be provided when vector_search is True."
             )
-        stories = services.get_vector_search_stories(
+        vector_stories = services.get_vector_search_stories(
             start_date=start_date,
             limit=1_000,
-            query=query,
+            vector_search=vector_search,
         )
-        story_ids = [story["id"] for story in stories]
+        story_ids = [story["id"] for story in vector_stories]
         stories = services.get_stories_by_id(story_ids=story_ids)["data"]
+        for story in stories:
+            story["similarity_score"] = next(
+                item["similarity_score"]
+                for item in vector_stories
+                if item["id"] == story["id"]
+            )
+        random.shuffle(stories)
+        stories = sorted(
+            stories[:limit], key=lambda x: x["similarity_score"], reverse=True
+        )
+
     else:
         stories = services.get_stories(limit=1_000, start_date=start_date)["data"]
-    random.shuffle(stories)
-    stories = stories[:limit]
+        random.shuffle(stories)
     return [
         md.Story(
             id=story["id"],
@@ -91,6 +102,7 @@ def get_random_stories(
             author=story["author"],
             type=story["type"],
             classification=story["classification"],
+            similarity_score=round(story.get("similarity_score", 0), 2),
         )
         for story in stories
     ]
@@ -146,6 +158,7 @@ def score_ranking_prompt(request):
     prompt_value = request.POST.get("prompt-value")
     if not story_ids:
         story_limit = int(request.POST.get("story-limit"))
+        is_vector_search = request.POST.get("is-vector-search")
         vector_search = request.POST.get("vector-search")
         start_date = int(request.POST.get("start-date"))
         today = datetime.datetime.now()
@@ -154,6 +167,7 @@ def score_ranking_prompt(request):
             stories = get_random_stories(
                 query=prompt_value,
                 limit=story_limit,
+                is_vector_search=is_vector_search,
                 vector_search=vector_search,
                 start_date=start_date,
             )
@@ -175,7 +189,10 @@ def score_ranking_prompt(request):
         prompt=prompt_value,
         attributes=selected_attributes,
     )
-    html = render_to_string("score_stories_list.html", {"stories": data})
+    html = render_to_string(
+        "dummy_score_stories_list.html",
+        {"llm_stories": data, "vector_stories": stories},
+    )
     return HttpResponse(html)
 
 

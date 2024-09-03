@@ -171,7 +171,7 @@ def get_stories_by_id(story_ids):
         return {}
 
 
-def get_vector_search_stories(start_date, limit, query):
+def get_vector_search_stories(start_date, limit, vector_search):
     end_date_time = datetime.datetime.now().isoformat()
     vector_db_url = "http://13.92.253.7"
     headers = {
@@ -179,7 +179,7 @@ def get_vector_search_stories(start_date, limit, query):
         "Content-Type": "application/json",
     }
     payload = {
-        "query": str(query),
+        "query": str(vector_search),
         "n_results": limit,
         "start_date_time": start_date,
         "end_date_time": end_date_time,
