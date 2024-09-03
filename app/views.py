@@ -65,7 +65,7 @@ def score_ranking_prompt(request):
     prompt_value = request.POST.get("prompt-value")
     story_limit = int(request.POST.get("story-limit"))
     is_vector_search = request.POST.get("is-vector-search")
-    vector_search = request.POST.get("vector-search")
+    vector_query = request.POST.get("vector-query")
     sampling_method = request.POST.get("sampling-method")
     start_date = (
         datetime.datetime.now()
@@ -84,7 +84,7 @@ def score_ranking_prompt(request):
         stories = repo.stories.get_random_stories(
             query=prompt_value,
             is_vector_search=is_vector_search,
-            vector_search=vector_search,
+            vector_search=vector_query,
             start_date=start_date,
         )
     except ValueError as e:
