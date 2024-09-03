@@ -26,9 +26,9 @@ REPLICATING_HTML_MSG = """
 STORY_ATTRIBUTES_UI = [
     {"name": "title", "default": True},
     {"name": "text", "default": True},
-    {"name": "published_at", "default": False},
-    {"name": "publication", "default": False},
-    {"name": "author", "default": False},
-    {"name": "type", "default": False},
-    {"name": "classification", "default": False},
+    {"name": "published_at", "default": True},
+    {"name": "publication", "default": True},
+    {"name": "author", "default": True},
+    {"name": "type", "default": True},
+    {"name": "classification", "default": True},
 ]

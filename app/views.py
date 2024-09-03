@@ -21,12 +21,48 @@ def score_ranking(request):
 
 @csrf.csrf_exempt
 @http.require_POST
-def score_ranking_prompt(request):
+def rerank_stories(request):
     story_ids = request.POST.getlist("story-id")
+    vector_positions = request.POST.getlist("vector-position")
+    similarity_scores = request.POST.getlist("similarity-score")
+    prompt_value = request.POST.get("prompt-value")
+    selected_attributes = [
+        request.POST[key] for key in request.POST if key.startswith("attribute-")
+    ]
+
+    stories = []
+    for story_id, vector_position, similarity_score in zip(
+        story_ids, vector_positions, similarity_scores
+    ):
+        stories.append(
+            {
+                "id": story_id,
+                "vector_position": int(vector_position),
+                "similarity_score": float(similarity_score),
+            }
+        )
+
+    stories = repo.stories.get_repeat_stories(stories=stories)
+    stories = sorted(stories, key=lambda x: x.position, reverse=False)
+    data = services.make_concurrent_llm_requests_for_stories(
+        stories=stories,
+        prompt=prompt_value,
+        attributes=selected_attributes,
+    )
+    html = render_to_string(
+        "score_stories_list.html", {"llm_stories": data, "vector_stories": stories}
+    )
+    return HttpResponse(html)
+
+
+@csrf.csrf_exempt
+@http.require_POST
+def score_ranking_prompt(request):
     prompt_value = request.POST.get("prompt-value")
     story_limit = int(request.POST.get("story-limit"))
     is_vector_search = request.POST.get("is-vector-search")
     vector_search = request.POST.get("vector-search")
+    sampling_method = request.POST.get("sampling-method")
     start_date = (
         datetime.datetime.now()
         - datetime.timedelta(days=int(request.POST.get("start-date")))
@@ -40,26 +76,26 @@ def score_ranking_prompt(request):
         if start_time <= now <= end_time:
             return HttpResponse(constants.REPLICATING_HTML_MSG)
 
-    if not story_ids:
-        try:
-            stories = repo.stories.get_random_stories(
-                query=prompt_value,
-                limit=story_limit,
-                is_vector_search=is_vector_search,
-                vector_search=vector_search,
-                start_date=start_date,
-            )
-        except ValueError as e:
-            html = f"""
-                <p>{e}</p>
-                <p>Please try again.</p>
-            """
-            return HttpResponse(html)
-    else:
-        stories = repo.stories.get_repeat_stories(story_ids=story_ids)
-
-    data = services.make_concurrent_llm_requests_for_stories(
+    try:
+        stories = repo.stories.get_random_stories(
+            query=prompt_value,
+            is_vector_search=is_vector_search,
+            vector_search=vector_search,
+            start_date=start_date,
+        )
+    except ValueError as e:
+        html = f"""
+            <p>{e}</p>
+            <p>Please try again.</p>
+        """
+        return HttpResponse(html)
+    llm_stories = services.sampling.sample_stories(
         stories=stories,
+        limit=story_limit,
+        sampling_method=sampling_method,
+    )
+    data = services.make_concurrent_llm_requests_for_stories(
+        stories=llm_stories,
         prompt=prompt_value,
         attributes=selected_attributes,
     )

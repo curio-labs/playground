@@ -44,6 +44,14 @@ class Story(models.Model):
     def similarity_score(self, value):
         self._similarity_score = value
 
+    @property
+    def position(self):
+        return getattr(self, "_position", None)
+
+    @position.setter
+    def position(self, value):
+        self._position = value
+
     def __str__(self):
         return self.title
 

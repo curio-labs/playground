@@ -14,6 +14,14 @@
               class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
               placeholder="Enter your vector search here..."></textarea>
 </div>
+<div class="mb-6 flex items-center justify-between">
+    <label class="font-bold text-gray-300 " for="start-date">Stories from N days ago</label>
+    <input id="start-date" name="start-date"
+           class="mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+           type="number" value="3"
+           max="100" min="1"/>
+</div>
+
 
 <div class="mb-6">
     <label class="font-bold text-gray-300" for="prompt-value">LLM Prompt</label>
@@ -22,25 +30,40 @@
               class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
               placeholder="Enter your LLM prompt here..."></textarea>
 </div>
-
 <div class="mb-6">
-    <label class="font-bold text-gray-300" for="start-date">Start Date (N days ago - 1000 stories max)</label>
-    <input id="start-date" name="start-date"
-           class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-           type="number" value="3"
-           max="100" min="1"/>
+    <div class="font-bold text-white">Sampling</div>
+    <div class="grid grid-cols-2 gap-4 mt-4">
+        <div>
+            <input
+                    type="radio"
+                    id="is-top-sample"
+                    name="sampling-method"
+                    class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                    value="top-n"
+                    checked>
+            <label for="is-top-sample" class="text-gray-300">Top N</label>
+        </div>
+        <div>
+            <input
+                    type="radio"
+                    id="is-random-sample"
+                    name="sampling-method"
+                    value="random"
+                    class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed">
+            <label for="is-random-sample" class="text-gray-300">Random</label>
+        </div>
+    </div>
 </div>
 
-<div class="mb-6">
-    <label class="font-bold text-gray-300" for="story-limit">Story Limit (Y random stories from batch)</label>
+<div class="mb-6 flex justify-between items-center">
+    <label class="font-bold text-gray-300 " for="story-limit">LLM Stories</label>
     <input id="story-limit" name="story-limit"
-           class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+           class="mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
            type="number" value="20"
            max="100" min="1"/>
 </div>
-
 <div class="mb-6">
-    <div class="text-xl font-bold text-white">Select Story Attributes</div>
+    <div class="font-bold text-white">Select Story Attributes</div>
     <div class="grid grid-cols-2 gap-4 mt-4">
         {% for attribute in attributes %}
         <div>
@@ -58,17 +81,17 @@
 </div>
 
 <div class="mb-6">
-    <div class="text-xl font-bold text-white">Search Method</div>
+    <div class="font-bold text-white">Search Method</div>
     <div class="grid grid-cols-2 gap-4 mt-4">
         <div>
             <input
                     type="checkbox"
-                    id="vector-search"
+                    id="is-vector-search"
                     name="is-vector-search"
                     value="is-vector-search"
                     class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
                     checked>
-            <label for="vector-search" class="text-gray-300">Vector Search</label>
+            <label for="is-vector-search" class="text-gray-300">Vector Search</label>
         </div>
         <div>
             <input
@@ -91,17 +114,17 @@
             hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
             hx-target="#output-box"
             hx-swap="innerHTML"
-            hx-include="[name=start-date], [name=story-limit], [name=prompt-value], [name^=attribute], [name=vector-search], [name=is-vector-search], [name=is-gpt-ranking]"
+            hx-include="[name=start-date], [name=story-limit], [name=prompt-value], [name^=attribute], [name=is-vector-search], [name=is-gpt-ranking], [name=sampling-method], [name=prompt-name], [name=vector-query]"
             hx-indicator="#loading-indicator"
     >Run
     </button>
 
     <button class="w-full py-3 bg-gray-700 text-white rounded-md shadow hover:bg-gray-600 focus:outline-none"
-            hx-post="/score-ranking-prompt/"
+            hx-post="/rerank-stories/"
             hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
             hx-target="#output-box"
             hx-swap="innerHTML"
-            hx-include="[name=story-id], [name=prompt-value], [name^=attribute], [name=vector-search], [name=is-vector-search], [name=is-gpt-ranking]"
+            hx-include="[name=story-id], [name=similarity-score], [name=vector-position], [name^=attribute], [name=prompt-value"]
             hx-indicator="#loading-indicator"
     >Run Again
     </button>

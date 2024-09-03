@@ -1,6 +1,8 @@
 import datetime
+import copy
 import json
 import os
+import random
 from typing import Optional
 
 from openai import OpenAI
@@ -82,12 +84,19 @@ def make_llm_request_for_single_story(story, prompt: str, attributes):
     result["id"] = story.id
     result["title"] = story.title
     result["value"] = result["value"] if result["value"] is not None else 0
+    result["similarity_score"] = story.similarity_score
+    result["position"] = story.position
+    result["publication"] = story.publication
+    result["published_at"] = story.published_at
     return result
 
 
 def make_concurrent_llm_requests_for_stories(
-    prompt: str, stories: list[Story], attributes: Optional[list[str]] = None
+    prompt: str,
+    stories: list[Story],
+    attributes: Optional[list[str]] = None,
 ):
+
     tasks: TaskList = [
         (
             make_llm_request_for_single_story,
@@ -101,4 +110,5 @@ def make_concurrent_llm_requests_for_stories(
     ]
     results = execute_in_thread_pool(tasks, max_workers=10)
     results = sorted(results, key=lambda x: x["value"], reverse=True)
+    del stories
     return results
