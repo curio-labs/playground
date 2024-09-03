@@ -29,6 +29,7 @@ class Headline(BaseModel):
 HTTP_TOO_MANY_REQUEST = 429
 HTTP_SERVER_ERROR = 500
 
+
 def _bing_categories_gb() -> List[str]:
     return [
         "Business",
@@ -78,7 +79,9 @@ def _id_from_bing_headline(headline_result: Dict) -> str:
     split_headline_description = headline_description.split(" ")
     reasonable_word_length = 3
     first_5_words = [
-        word.lower() for word in split_headline_description if len(word) > reasonable_word_length
+        word.lower()
+        for word in split_headline_description
+        if len(word) > reasonable_word_length
     ][:5]
     return "-".join(first_5_words)
 
