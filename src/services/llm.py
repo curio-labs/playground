@@ -5,7 +5,6 @@ import os
 from openai import OpenAI
 from pydantic import BaseModel
 
-from .tables import get_stories
 from .utils import execute_in_thread_pool, TaskList
 
 OPEN_AI_DEFAULT_MODEL = "gpt-4o-2024-08-06"

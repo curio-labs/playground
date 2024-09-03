@@ -1,66 +1,40 @@
-<!DOCTYPE html>
-{% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CurioAI Playground</title>
-    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/output.css' %}" type="text/css">
-    <script>
-      // Fetch CSRF token from /utilities/csrf_token
-      document.addEventListener('DOMContentLoaded', function () {
-        fetch('/utility/get-csrf-token/')
-          .then(response => response.text())
-          .then(token => {
-            document.querySelectorAll('[name=csrf-token]').forEach(function (input) {
-              input.value = token;
-            });
-          });
-      });
-    </script>
-</head>
-<body class="bg-black p-6">
+{% extends 'layout.html' %}
 
-<div class="container mx-auto text-white">
-    <div class="text-center text-2xl font-bold text-white mb-6">
-        CurioAI Playground
+{% block content %}
+<input name="csrf-token" id="csrf-token" type="hidden"/>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 p-4 text-white">
+    <!-- Score Ranking Card -->
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 hover:bg-gray-700 transition duration-300">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-bold text-blue-400">Score Ranking</h3>
+            <span id="score_ranking_status" class="text-green-400 font-semibold">Ready</span>
+        </div>
+        <p class="text-gray-300 mb-4">A score-based ranking page for internal content.</p>
+        <a href="/score-ranking" class="text-blue-500 hover:text-blue-400 font-bold">Go to Score Ranking</a>
     </div>
-    <input name="csrf-token" id="csrf-token" type="hidden"/>
-    <div class="grid grid-cols-12 text-white mt-6">
-        <div class="col-span-4 font-bold p-4 bg-gray-800 text-center">Page</div>
-        <div class="col-span-4 font-bold p-4 bg-gray-800 text-center">Description</div>
-        <div class="col-span-4 font-bold p-4 bg-gray-800 text-center">Status</div>
 
-        <div class="col-span-4 p-4 bg-gray-700 text-center font-bold">
-            <a href="/simple-ranking" class="text-blue-600 hover:underline">Simple Ranking</a>
+    <!-- News Ranking Card -->
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 hover:bg-gray-700 transition duration-300">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-bold text-blue-400">News Ranking</h3>
+            <span id="news_ranking_status" class="text-rioRed font-semibold">NOT READY</span>
         </div>
-        <div class="col-span-4 p-4 bg-gray-700 text-center">A simple ranking page based on user input</div>
-        <div class="col-span-4 p-4 bg-gray-700 text-center font-bold">
-            <span id="simple_ranking_status" class="text-green-400">Ready</span>
-        </div>
-
-        <div class="col-span-4 p-4 bg-gray-700 text-center">
-            <a href="/score-ranking" class="text-blue-600 font-bold hover:underline">Score Ranking</a>
-        </div>
-        <div class="col-span-4 p-4 bg-gray-700 text-center">A score-based ranking page with advanced features</div>
-        <div class="col-span-4 p-4 bg-gray-700 text-center font-bold">
-            <span id="score_ranking_status" class="text-green-400">Ready</span>
-        </div>
+        <p class="text-gray-300 mb-4">A score-based ranking page for content based on news</p>
+        <a href="/score-ranking" class="hidden disabled text-blue-500 hover:text-blue-400 font-bold">Go to News Ranking</a>
     </div>
+
+    <!-- Transformer Card -->
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6 hover:bg-gray-700 transition duration-300">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-bold text-blue-400">Transformer</h3>
+            <span id="transformer_status" class="text-rioRed font-semibold">NOT READY</span>
+        </div>
+        <p class="text-gray-300 mb-4">An LLM text transformer</p>
+        <a href="/transformer" class="hidden disabled text-blue-500 hover:text-blue-400 font-bold">Go to Transformer</a>
+    </div>
+
+    <!-- Add more cards here for additional playgrounds -->
 </div>
 
-</body>
-<script>
-  document.addEventListener('htmx:beforeRequest', function (event) {
-    document.querySelector('#loading-indicator').classList.remove('hidden');
-  });
-
-  document.addEventListener('htmx:afterRequest', function (event) {
-    document.querySelector('#loading-indicator').classList.add('hidden');
-  });
-</script>
-</html>
-
-
+{% endblock %}

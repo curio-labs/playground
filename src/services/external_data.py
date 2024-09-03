@@ -6,18 +6,6 @@ import uuid
 import psycopg2
 
 
-def get_attributes():
-    return [
-        {"name": "title", "default": True},
-        {"name": "text", "default": True},
-        {"name": "published_at", "default": False},
-        {"name": "publication", "default": False},
-        {"name": "author", "default": False},
-        {"name": "type", "default": False},
-        {"name": "classification", "default": False},
-    ]
-
-
 def get_stories(start_date, limit=10):
     host = os.environ["REPLICA_HOST"]
     database = os.environ["REPLICA_DB"]

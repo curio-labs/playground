@@ -1,8 +1,7 @@
-from .tables import (
+from .external_data import (
     get_table_row_counts,
     get_stories,
     get_stories_by_id,
-    get_attributes,
     get_vector_search_stories,
 )
 from .llm import (
@@ -12,7 +11,6 @@ from .llm import (
 
 
 __all__ = [
-    "get_attributes",
     "get_stories_by_id",
     "get_table_row_counts",
     "get_vector_search_stories",
