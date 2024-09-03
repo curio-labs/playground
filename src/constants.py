@@ -14,14 +14,19 @@ READABLE_PERIODS = [
 ]
 
 REPLICATING_HTML_MSG = """
-    <p>The database is currently replicating. Please try again later.</p>
-    <p>Replication occurs daily during the following periods:</p>
-    <ul>
-        <li>01:00-01:30</li>
-        <li>07:00-07:30</li>
-        <li>13:00-13:30</li>
-        <li>19:00-19:30</li>
-    </ul>
+<div class="text-white">
+    <div class="flex flex-col items-center justify-center h-screen">
+        <p>The database is currently replicating. Please try again later.</p>
+        <p>Replication occurs daily during the following periods:</p>
+        <ul>
+            <li>01:00-01:30</li>
+            <li>07:00-07:30</li>
+            <li>13:00-13:30</li>
+            <li>19:00-19:30</li>
+        </ul>
+        </div>
+    </div>
+</div>
 """
 STORY_ATTRIBUTES_UI = [
     {"name": "title", "default": True},
