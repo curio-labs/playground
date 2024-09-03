@@ -1,13 +1,13 @@
 import datetime
+
 import httpx
-from django.http import Http404
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.views.decorators import csrf, http
 
 from app import repo
-from src import services, firebase, constants
+from src import constants, firebase, services
 
 
 def index(request):
@@ -83,7 +83,7 @@ def get_story_by_id(request, story_id):
         return HttpResponse(story_html)
 
     except Exception as e:
-        raise Http404(f"Story with ID {story_id} not found: {e}")
+        raise Http404(f"Story with ID {story_id} not found: {e}") from None
 
 
 @csrf.csrf_exempt
@@ -109,4 +109,4 @@ def get_script(request, story_id):
     except httpx.RequestError:
         return HttpResponse("Error fetching external paragraphs.", status=500)
     except Exception as e:
-        raise Http404(f"Story with ID {story_id} not found: {e}")
+        raise Http404(f"Story with ID {story_id} not found: {e}") from None

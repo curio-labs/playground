@@ -11,7 +11,7 @@ environ.Env.read_env(os.path.join(ROOT_DIR, ".env"))
 ENVIRONMENT = env("ENVIRONMENT")
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 if not IS_HEROKU_APP:
-    DEBUG = True if ENVIRONMENT == "development" else False
+    DEBUG = ENVIRONMENT == "development"
     ALLOWED_HOSTS = ["*.herokuapp.com", "localhost"]
 else:
     DEBUG = False

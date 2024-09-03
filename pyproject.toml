@@ -37,7 +37,7 @@ select = [
     "B",    # Bugbear-related rules
 
     # Ruff (ruff-specific checks and errors)
-#    "RUF",  # Ruff-specific linting
+    "RUF",  # Ruff-specific linting
 
     # Type hinting checks
 #    "ANN",  # Annotations (type hints)
@@ -50,13 +50,13 @@ select = [
     "PIE",  # Best practice enforcement
 
     # Pylint rules
-#    "PL",   # Pylint rules
+    "PL",   # Pylint rules
 
     # Input-related rules (specific to ruff)
-#    "INP",  # Input-related rules
+    "INP",  # Input-related rules
 
     # Simplifications (restructuring code for simplicity)
-#    "SIM",  # Code simplifications
+    "SIM",  # Code simplifications
 
     # Pygments-based highlighting (source code linting in docstrings)
     "PGH",  # Pygments-based highlighting

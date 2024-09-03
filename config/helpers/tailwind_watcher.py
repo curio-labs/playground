@@ -17,7 +17,7 @@ def run_tailwind_watch():
         "./app/static/css/output.css",  # output
         "--watch",
     ]
-    subprocess.run(command)
+    subprocess.run(command, check=False)
     logger.info("TailwindCSS watcher started.")
 
 

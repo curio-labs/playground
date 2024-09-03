@@ -13,7 +13,7 @@ READABLE_PERIODS = [
     ("18:00", "18:30"),
 ]
 
-REPLICATING_HTML_MSG = f"""
+REPLICATING_HTML_MSG = """
     <p>The database is currently replicating. Please try again later.</p>
     <p>Replication occurs daily during the following periods:</p>
     <ul>

@@ -7,9 +7,9 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = []
+    dependencies = ()
 
-    operations = [
+    operations = (
         migrations.CreateModel(
             name="Task",
             fields=[
@@ -44,4 +44,4 @@ class Migration(migrations.Migration):
                 "db_table": "tasks",
             },
         ),
-    ]
+    )

@@ -1,11 +1,12 @@
-import json
 import datetime
+import json
 import os
+from typing import Optional
 
 from openai import OpenAI
 from pydantic import BaseModel
 
-from .utils import execute_in_thread_pool, TaskList
+from .utils import TaskList, execute_in_thread_pool
 
 OPEN_AI_DEFAULT_MODEL = "gpt-4o-2024-08-06"
 OPEN_AI_API_URL = "https://api.openai.com/v1/chat/completions"
@@ -85,7 +86,7 @@ def make_llm_request_for_single_story(story, prompt: str, attributes):
 
 
 def make_concurrent_llm_requests_for_stories(
-    prompt: str, stories: list[Story], attributes: list[str] = None
+    prompt: str, stories: list[Story], attributes: Optional[list[str]] = None
 ):
     tasks: TaskList = [
         (

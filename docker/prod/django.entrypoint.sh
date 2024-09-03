@@ -6,4 +6,4 @@ set -o nounset
 
 python /app/manage.py collectstatic --noinput
 python /app/manage.py migrate --noinput
-/usr/local/bin/gunicorn -c /app/docker/prod/gunicorn.conf.py config.asgi:application
+/usr/local/bin/gunicorn -c /app/docker/prod/gunicorn.py config.asgi:application

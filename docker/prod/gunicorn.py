@@ -1,7 +1,8 @@
 import multiprocessing
 import os
 
-PORT = os.getenv("PORT", 8000)
+DEFAULT_PORT = 8000
+PORT = os.getenv("PORT", DEFAULT_PORT)
 bind = f"0.0.0.0:{PORT}"
 workers = multiprocessing.cpu_count() * 2 + 1
 worker_class = "uvicorn.workers.UvicornWorker"

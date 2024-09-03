@@ -1,8 +1,8 @@
-import os
 import datetime
-import httpx
+import os
 import uuid
 
+import httpx
 import psycopg2
 
 
@@ -13,9 +13,11 @@ def get_stories(start_date, limit=10):
     password = os.environ["REPLICA_PASSWORD"]
     if not isinstance(limit, int):
         raise ValueError("limit should be an integer")
-    if limit < 1:
+    min_limit = 1
+    max_limit = 100_000
+    if limit < min_limit:
         raise ValueError("limit should be greater than 0")
-    if limit > 100000:
+    if limit > max_limit:
         raise ValueError("limit should be less than 100000")
 
     conn = psycopg2.connect(host=host, database=database, user=user, password=password)
@@ -29,8 +31,8 @@ def get_stories(start_date, limit=10):
     INNER JOIN
         content_publication p on p.id = st.publication_id
     WHERE
-        st.published_at::date <= current_date 
-        AND st.published_at::date >= '{start_date}'  
+        st.published_at::date <= current_date
+        AND st.published_at::date >= '{start_date}'
         AND (st.type != 'SEGMENT' OR st.type IS NULL)
     ORDER BY
         st.published_at DESC
@@ -57,8 +59,7 @@ def get_stories(start_date, limit=10):
         cur.close()
         conn.close()
         return {"total": len(table_row_count_dict), "data": table_row_count_dict}
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    except Exception:
         return {}
 
 
@@ -92,8 +93,7 @@ def get_table_row_counts(
         cur.close()
         conn.close()
         return table_row_count_dict
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    except Exception:
         return {}
 
 
@@ -110,7 +110,7 @@ def get_stories_by_id(story_ids):
         try:
             uuid.UUID(story_id, version=4)
         except ValueError:
-            raise ValueError("story_ids should be a list of valid story ids")
+            raise ValueError("story_ids should be a list of valid story ids") from None
 
     story_ids_placeholder = ", ".join(["%s"] * len(story_ids))
 
@@ -154,8 +154,7 @@ def get_stories_by_id(story_ids):
 
         return {"total": len(table_row_count_dict), "data": table_row_count_dict}
 
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    except Exception:
         return {}
 
 

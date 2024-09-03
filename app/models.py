@@ -1,14 +1,15 @@
-from django.db import models
 import uuid
+
+from django.db import models
 
 
 class Task(models.Model):
-    TASK_STATUS_CHOICES = [
+    TASK_STATUS_CHOICES = (
         ("PENDING", "Pending"),
         ("STARTED", "Started"),
         ("COMPLETED", "Completed"),
         ("FAILED", "Failed"),
-    ]
+    )
 
     task_id = models.CharField(max_length=255, unique=True)
     status = models.CharField(
