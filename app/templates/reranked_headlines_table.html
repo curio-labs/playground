@@ -9,6 +9,7 @@
                     <th class="py-2 px-4 border-b border-gray-300 text-left text-sm font-medium text-gray-700">Title</th>
                     <th class="py-2 px-4 border-b border-gray-300 text-left text-sm font-medium text-gray-700">Summary</th>
                     <th class="py-2 px-4 border-b border-gray-300 text-left text-sm font-medium text-gray-700">Publication</th>
+                    <th class="py-2 px-4 border-b border-gray-300 text-left text-sm font-medium text-gray-700">BingNews Category</th>
                 </tr>
             </thead>
             <tbody>
@@ -17,6 +18,7 @@
                     <td class="py-2 px-4 text-xs font-semibold text-gray-400 mt-1 border-b border-gray-300">{{headline.title}}</td>
                     <td class="py-2 px-4 text-xs font-semibold text-gray-400 mt-1 border-b border-gray-300">{{headline.summary}}</td>
                     <td class="py-2 px-4 text-xs font-semibold text-gray-400 mt-1 border-b border-gray-300">{{headline.publication}}</td>
+                    <td class="py-2 px-4 text-xs font-semibold text-gray-400 mt-1 border-b border-gray-300">{{headline.category}}</td>
                 </tr>
             {%  endfor %}
             </tbody>
@@ -32,14 +34,18 @@
                     <th class="py-2 px-4 border-b border-gray-300 text-left text-sm font-medium text-gray-700">Title</th>
                     <th class="py-2 px-4 border-b border-gray-300 text-left text-sm font-medium text-gray-700">Summary</th>
                     <th class="py-2 px-4 border-b border-gray-300 text-left text-sm font-medium text-gray-700">Publication</th>
+                    <th class="py-2 px-4 border-b border-gray-300 text-left text-sm font-medium text-gray-700">BingNews Category</th>
+                    <th class="py-2 px-4 border-b border-gray-300 text-left text-sm font-medium text-gray-700">Score</th>
                 </tr>
             </thead>
             <tbody>
-            {% for headline in reranked_headlines %}
+            {% for reranked_headline in reranked_headlines %}
                 <tr class="hover:bg-gray-50">
-                    <td class="py-2 px-4 text-xs font-semibold text-gray-400 mt-1 border-b border-gray-300">{{headline.title}}</td>
-                    <td class="py-2 px-4 text-xs font-semibold text-gray-400 mt-1 border-b border-gray-300">{{headline.summary}}</td>
-                    <td class="py-2 px-4 text-xs font-semibold text-gray-400 mt-1 border-b border-gray-300">{{headline.publication}}</td>
+                    <td class="py-2 px-4 text-xs font-semibold text-gray-400 mt-1 border-b border-gray-300">{{reranked_headline.0.title}}</td>
+                    <td class="py-2 px-4 text-xs font-semibold text-gray-400 mt-1 border-b border-gray-300">{{reranked_headline.0.summary}}</td>
+                    <td class="py-2 px-4 text-xs font-semibold text-gray-400 mt-1 border-b border-gray-300">{{reranked_headline.0.publication}}</td>
+                    <td class="py-2 px-4 text-xs font-semibold text-gray-400 mt-1 border-b border-gray-300">{{reranked_headline.0.category}}</td>
+                    <td class="py-2 px-4 text-xs font-semibold text-gray-400 mt-1 border-b border-gray-300">{{reranked_headline.1|floatformat:6}}</td>
                 </tr>
             {%  endfor %}
             </tbody>

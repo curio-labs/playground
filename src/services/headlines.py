@@ -24,6 +24,7 @@ class Headline(BaseModel):
     title: str
     summary: str
     publication: str
+    category: str
 
 
 HTTP_TOO_MANY_REQUEST = 429
@@ -63,7 +64,7 @@ def _bing_request(headers: Dict, params: Dict) -> Dict:
     try:
         resp = httpx.get(url=BING_NEWS_TOPIC_URL, headers=headers, params=params)
         resp.raise_for_status()
-        return resp.json()
+        return {**resp.json(), "category": params["category"]}
     except httpx.HTTPStatusError as err:
         if err.response.status_code == HTTP_TOO_MANY_REQUEST:
             raise RateLimitedError() from err
@@ -121,5 +122,6 @@ def get_all_bing_news_headlines(market: str) -> List[Headline]:
                     title=html.unescape(headline_result["name"]),
                     summary=html.unescape(headline_result["description"]),
                     publication=headline_result["provider"][0]["name"],
+                    category=result["category"],
                 )
     return list(headlines.values())

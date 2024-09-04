@@ -136,8 +136,8 @@ def news_ranking_prompt(request):
         """
         return HttpResponse(html)
 
-    reranked_headlines = services.llm.make_llm_request_for_headline_reranking(
-        headlines=headlines, reranking_prompt=prompt_value
+    reranked_headlines = services.llm.make_concurrent_llm_request_for_headline_scoring(
+        headlines=headlines, relevancy_prompt=prompt_value
     )
     html = render_to_string(
         "reranked_headlines_table.html",
