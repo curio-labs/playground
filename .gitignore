@@ -169,3 +169,7 @@ cython_debug/
 # Django stuff:
 staticfiles
 media
+
+
+# no vc
+no_vc/

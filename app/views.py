@@ -19,6 +19,13 @@ def score_ranking(request):
     return render(request, "score_ranking.html", {"attributes": attributes})
 
 
+def news_ranking(request):
+    return render(
+        request,
+        "news_ranking.html",
+    )
+
+
 @csrf.csrf_exempt
 @http.require_POST
 def rerank_stories(request):
@@ -110,6 +117,36 @@ def score_ranking_prompt(request):
 
 
 @csrf.csrf_exempt
+@http.require_POST
+def news_ranking_prompt(request):
+    prompt_value = request.POST.get("prompt-value")
+    news_market = request.POST.get("news-market")
+
+    for start_time, end_time in constants.REPLICATION_PERIODS:
+        now = datetime.datetime.now().time()
+        if start_time <= now <= end_time:
+            return HttpResponse(constants.REPLICATING_HTML_MSG)
+
+    try:
+        headlines = services.headlines.get_all_bing_news_headlines(market=news_market)
+    except ValueError as e:
+        html = f"""
+            <p>{e}</p>
+            <p>Please try again.</p>
+        """
+        return HttpResponse(html)
+
+    reranked_headlines = services.llm.make_concurrent_llm_request_for_headline_scoring(
+        headlines=headlines, relevancy_prompt=prompt_value
+    )
+    html = render_to_string(
+        "reranked_headlines_table.html",
+        {"headlines": headlines, "reranked_headlines": reranked_headlines},
+    )
+    return HttpResponse(html)
+
+
+@csrf.csrf_exempt
 @http.require_GET
 def get_story_by_id(request, story_id):
     try:
@@ -130,7 +167,6 @@ def get_story_by_id(request, story_id):
 @http.require_GET
 def get_script(request, story_id):
     try:
-
         url = f"https://api.services.curio.io/api/scripts/script/{story_id}/"
         token = firebase.get_firebase_token()
         headers = {
