@@ -122,11 +122,6 @@ def news_ranking_prompt(request):
     prompt_value = request.POST.get("prompt-value")
     news_market = request.POST.get("news-market")
 
-    for start_time, end_time in constants.REPLICATION_PERIODS:
-        now = datetime.datetime.now().time()
-        if start_time <= now <= end_time:
-            return HttpResponse(constants.REPLICATING_HTML_MSG)
-
     try:
         headlines = services.headlines.get_all_bing_news_headlines(market=news_market)
     except ValueError as e:
