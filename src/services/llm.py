@@ -57,16 +57,19 @@ def _headlines_prompt_from_reranking_prompt(reranking_prompt: str) -> str:
     """
 
 
-def _headlines_prompt_from_relevancy_prompt(relevancy_prompt: str, headline_content: str) -> str:
+def _headlines_prompt_from_relevancy_prompt(
+    relevancy_prompt: str, headline_content: str
+) -> str:
     return f"""
     Is this a relevant headline, according to the below prompt/instruction?
-    Output a small list of tags/attributes you could associate with the headline, and nothing else e.g the likely topics and subjects of the headline.
-    Then with those tags in mind, finally answer either "true" or "false", and nothing else. 
+    Output a small list of tags/attributes you could associate with the headline, and nothing else e.g the likely
+    topics and subjects of the headline.
+    Then with those tags in mind, finally answer either "true" or "false", and nothing else.
     Your final output should be "true" or "false".
 
     Headline:
     {headline_content}
-    
+
     Instruction:
     {relevancy_prompt}
     """
@@ -85,8 +88,12 @@ def _extract_top_logprob_token_and_score(top_logprob: TopLogprob) -> Tuple[str, 
 
 
 def _extract_true_false_probs(scored_tokens: List[TokenLogprob]) -> Tuple[float, float]:
-    truthy_token_logprobs = [logprob for token, logprob in scored_tokens if _is_truthy_token(token)]
-    falsy_token_logprobs = [logprob for token, logprob in scored_tokens if _is_falsy_token(token)]
+    truthy_token_logprobs = [
+        logprob for token, logprob in scored_tokens if _is_truthy_token(token)
+    ]
+    falsy_token_logprobs = [
+        logprob for token, logprob in scored_tokens if _is_falsy_token(token)
+    ]
 
     true_prob = sum([exp(logprob) for logprob in truthy_token_logprobs])
     false_prob = sum([exp(logprob) for logprob in falsy_token_logprobs])
@@ -100,29 +107,40 @@ def _extract_true_false_probs(scored_tokens: List[TokenLogprob]) -> Tuple[float,
         return adjusted_true_prob, adjusted_false_prob
 
 
-def make_llm_request_for_headline_scoring(headline: Headline, relevancy_prompt: str) -> RelevancyScoredHeadline:
-
+def make_llm_request_for_headline_scoring(
+    headline: Headline, relevancy_prompt: str
+) -> RelevancyScoredHeadline:
     prompt = _headlines_prompt_from_reranking_prompt(relevancy_prompt)
     result = client.chat.completions.create(
         model=OPEN_AI_DEFAULT_MODEL,
         messages=[
             {
                 "role": "user",
-                "content": _headlines_prompt_from_relevancy_prompt(prompt, headline.model_dump_json()),
+                "content": _headlines_prompt_from_relevancy_prompt(
+                    prompt, headline.model_dump_json()
+                ),
             },
         ],
         temperature=ZERO_TEMPERATURE,
         seed=42,
         logprobs=True,
-        top_logprobs=5
+        top_logprobs=5,
     )
     top_logprobs = result.choices[0].logprobs.content[-1].top_logprobs
-    top_scored_tokens = [_extract_top_logprob_token_and_score(top_logprob) for top_logprob in top_logprobs]
+    top_scored_tokens = [
+        _extract_top_logprob_token_and_score(top_logprob)
+        for top_logprob in top_logprobs
+    ]
     true_prob, false_prob = _extract_true_false_probs(top_scored_tokens)
-    return headline, true_prob,
+    return (
+        headline,
+        true_prob,
+    )
 
 
-def make_concurrent_llm_request_for_headline_scoring(headlines: list[Headline], relevancy_prompt: str) -> List[RelevancyScoredHeadline]:
+def make_concurrent_llm_request_for_headline_scoring(
+    headlines: list[Headline], relevancy_prompt: str
+) -> List[RelevancyScoredHeadline]:
     tasks: TaskList = [
         (
             make_llm_request_for_headline_scoring,
