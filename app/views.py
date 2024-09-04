@@ -121,9 +121,15 @@ def score_ranking_prompt(request):
 def news_ranking_prompt(request):
     prompt_value = request.POST.get("prompt-value")
     news_market = request.POST.get("news-market")
-
+    selected_news_feed = request.POST.get("selected-news-feed")
+    is_top_headlines = selected_news_feed == "top-headlines"
+    headline_limit = int(request.POST.get("headline-limit"))
     try:
-        headlines = services.headlines.get_all_bing_news_headlines(market=news_market)
+        headlines = services.headlines.get_all_bing_news_headlines(
+            market=news_market,
+            use_top_headlines_feed=is_top_headlines,
+            headline_limit=headline_limit,
+        )
     except ValueError as e:
         html = f"""
             <p>{e}</p>

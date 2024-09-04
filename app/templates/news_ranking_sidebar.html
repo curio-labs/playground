@@ -16,6 +16,40 @@
 </div>
 
 <div class="mb-6">
+    <div class="font-bold text-white">BingNews Feed</div>
+    <div class="grid grid-cols-2 gap-4 mt-4">
+        <div>
+            <input
+                    type="radio"
+                    id="is-top-headlines"
+                    name="selected-news-feed"
+                    class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                    value="top-headlines"
+                    checked>
+            <label for="is-top-headlines" class="text-gray-300">Top General Headlines</label>
+        </div>
+        <div>
+            <input
+                    type="radio"
+                    id="is-categorised-headlines"
+                    name="selected-news-feed"
+                    value="categorised-headlines"
+                    class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed">
+            <label for="is-categorised-headlines" class="text-gray-300">Categorised headlines</label>
+        </div>
+    </div>
+</div>
+
+<div class="mb-6 flex justify-between items-center">
+    <label class="font-bold text-gray-300 " for="headline-limit">Num. Raw Headlines (only applies when selecting the Top General Headlines feed)</label>
+    <input id="headline-limit" name="headline-limit"
+           class="mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+           type="number" value="20"
+           max="50" min="10"/>
+</div>
+
+
+<div class="mb-6">
     <label class="font-bold text-gray-300" for="prompt-value">LLM re-ranking prompt</label>
     <textarea name="prompt-value" id="prompt-value"
               rows="4"
@@ -32,7 +66,7 @@
             hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
             hx-target="#output-box"
             hx-swap="innerHTML"
-            hx-include="[name=prompt-value], [name=news-market]"
+            hx-include="[name=prompt-value], [name=news-market], [name=selected-news-feed], [name=headline-limit]"
             hx-indicator="#loading-indicator"
     >Run
     </button>

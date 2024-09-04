@@ -1,7 +1,7 @@
 import html
 import os
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import httpx
 from pydantic import BaseModel
@@ -9,6 +9,7 @@ from retry import retry
 
 SUBSCRIPTION_KEY = os.environ["BING_NEWS_API_KEY"]
 BING_NEWS_TOPIC_URL = "https://api.bing.microsoft.com/v7.0/news"
+BING_NEWS_SEARCH_URL = "https://api.bing.microsoft.com/v7.0/news/search"
 
 
 class RateLimitedError(Exception):
@@ -60,11 +61,14 @@ def _bing_categories_us() -> List[str]:
     ]
 
 
-def _bing_request(headers: Dict, params: Dict) -> Dict:
+def _bing_request(url: str, headers: Dict, params: Dict) -> Dict:
     try:
-        resp = httpx.get(url=BING_NEWS_TOPIC_URL, headers=headers, params=params)
+        resp = httpx.get(url=url, headers=headers, params=params)
         resp.raise_for_status()
-        return {**resp.json(), "category": params["category"]}
+        if "category" in params:
+            return {**resp.json(), "category": params["category"]}
+        else:
+            return {**resp.json(), "category": "TopGeneralHeadlines"}
     except httpx.HTTPStatusError as err:
         if err.response.status_code == HTTP_TOO_MANY_REQUEST:
             raise RateLimitedError() from err
@@ -87,7 +91,11 @@ def _id_from_bing_headline(headline_result: Dict) -> str:
     return "-".join(first_5_words)
 
 
-def get_all_bing_news_headlines(market: str) -> List[Headline]:
+def get_all_bing_news_headlines(
+    market: str,
+    use_top_headlines_feed: Optional[bool] = False,
+    headline_limit: Optional[int] = 20,
+) -> List[Headline]:
     market_str = "en-GB" if market == "GB" else "en-US"
     categories = _bing_categories_gb() if market == "GB" else _bing_categories_us()
     base_headers = {"Ocp-Apim-Subscription-Key": SUBSCRIPTION_KEY}
@@ -106,12 +114,25 @@ def get_all_bing_news_headlines(market: str) -> List[Headline]:
         max_delay=20,
     )
 
-    results = ThreadPoolExecutor(max_workers=5).map(
-        lambda category: retry_policy(
-            lambda: _bing_request(base_headers, {**params, "category": category})
-        )(),
-        categories,
-    )
+    if use_top_headlines_feed:
+        url = BING_NEWS_SEARCH_URL
+        results = retry_policy(
+            lambda: _bing_request(
+                url, base_headers, {**params, "count": headline_limit, "q": "top news"}
+            )
+        )()
+        results = [results]
+    else:
+        url = BING_NEWS_TOPIC_URL
+        results = ThreadPoolExecutor(max_workers=5).map(
+            lambda category: retry_policy(
+                lambda: _bing_request(
+                    url, base_headers, {**params, "category": category}
+                )
+            )(),
+            categories,
+        )
+
     headlines = {}
     for result in results:
         for headline_result in result["value"]:
