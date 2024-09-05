@@ -8,6 +8,7 @@ from django.views.decorators import csrf, http
 
 from app import repo
 from src import constants, firebase, services
+from src.services.headlines import HeadlineStoryQueryStrategy
 
 
 def index(request):
@@ -124,6 +125,8 @@ def news_ranking_prompt(request):
     selected_news_feed = request.POST.get("selected-news-feed")
     is_top_headlines = selected_news_feed == "top-headlines"
     headline_limit = int(request.POST.get("headline-limit"))
+    story_matching_strategy = request.POST.get("internal-story-matching")
+
     try:
         headlines = services.headlines.get_all_bing_news_headlines(
             market=news_market,
@@ -140,9 +143,34 @@ def news_ranking_prompt(request):
     reranked_headlines = services.llm.make_concurrent_llm_request_for_headline_scoring(
         headlines=headlines, relevancy_prompt=prompt_value
     )
+
+    if story_matching_strategy is None:
+        story_matches = None
+    else:
+        story_matching_strategy = HeadlineStoryQueryStrategy.from_user_str(
+            story_matching_strategy
+        )
+        story_matches = services.headlines.match_headlines_to_internal_stories(
+            [headline for headline, _ in reranked_headlines], story_matching_strategy
+        )
+
+    if story_matches is not None:
+        context = {
+            "headlines": headlines,
+            "reranked_headlines_and_stories": list(
+                zip(reranked_headlines, story_matches)
+            ),
+            "has_story_matches": True,
+        }
+    else:
+        context = {
+            "headlines": headlines,
+            "reranked_headlines": reranked_headlines,
+            "has_story_matches": False,
+        }
     html = render_to_string(
         "reranked_headlines_table.html",
-        {"headlines": headlines, "reranked_headlines": reranked_headlines},
+        context,
     )
     return HttpResponse(html)
 

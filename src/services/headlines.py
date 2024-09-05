@@ -1,11 +1,16 @@
+import enum
 import html
+import logging
 import os
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
 import httpx
 from pydantic import BaseModel
 from retry import retry
+
+from src.services import get_stories_by_id, get_vector_search_stories
 
 SUBSCRIPTION_KEY = os.environ["BING_NEWS_API_KEY"]
 BING_NEWS_TOPIC_URL = "https://api.bing.microsoft.com/v7.0/news"
@@ -28,8 +33,30 @@ class Headline(BaseModel):
     category: str
 
 
+class HeadlineStoryQueryStrategy(enum.Enum):
+    USE_TITLE = enum.auto()
+    USE_SUMMARY = enum.auto()
+    USE_TITLE_AND_SUMMARY = enum.auto()
+
+    @staticmethod
+    def from_user_str(user_str: str) -> "HeadlineStoryQueryStrategy":
+        if user_str == "match-on-title":
+            return HeadlineStoryQueryStrategy.USE_TITLE
+        elif user_str == "match-on-summary":
+            return HeadlineStoryQueryStrategy.USE_SUMMARY
+        elif user_str == "match-on-both":
+            return HeadlineStoryQueryStrategy.USE_TITLE_AND_SUMMARY
+        else:
+            raise ValueError(
+                f"Unrecognized user str for HeadlineStoryQueryStrategy: {user_str}"
+            )
+
+
 HTTP_TOO_MANY_REQUEST = 429
 HTTP_SERVER_ERROR = 500
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _bing_categories_gb() -> List[str]:
@@ -146,3 +173,50 @@ def get_all_bing_news_headlines(
                     category=result["category"],
                 )
     return list(headlines.values())
+
+
+def match_headlines_to_internal_stories(
+    headlines: List[Headline], query_strategy: HeadlineStoryQueryStrategy
+) -> List[Optional[Dict]]:
+    return list(
+        ThreadPoolExecutor(max_workers=10).map(
+            lambda h: match_headline_to_internal_story(h, query_strategy), headlines
+        )
+    )
+
+
+def match_headline_to_internal_story(
+    headline: Headline, query_strategy: Optional[HeadlineStoryQueryStrategy] = None
+) -> Optional[Dict]:
+    query_strategy = query_strategy or HeadlineStoryQueryStrategy.USE_SUMMARY
+    match query_strategy:
+        case HeadlineStoryQueryStrategy.USE_TITLE:
+            query_text = headline.title
+        case HeadlineStoryQueryStrategy.USE_SUMMARY:
+            query_text = headline.summary
+        case HeadlineStoryQueryStrategy.USE_TITLE_AND_SUMMARY:
+            query_text = f"{headline.title}   {headline.summary}"
+        case _:
+            raise ValueError(f"Unsupported query strategy {query_strategy}")
+
+    similarity_results = get_vector_search_stories(
+        start_date=(datetime.now() - timedelta(days=3)).isoformat(),
+        limit=3,
+        vector_search=query_text,
+    )
+    if len(similarity_results) == 0:
+        return None
+    else:
+        best_match_story_id = similarity_results[0]["id"]
+        best_match_stories = get_stories_by_id([best_match_story_id])["data"]
+        if len(best_match_stories) == 0:
+            LOG.warning(
+                f"Story with ID {best_match_story_id} exists in vector DB but not in playground DB."
+            )
+            return {
+                "id": best_match_story_id,
+                "title": "(An internal story was found but does not yet exist in the Playground DB)",
+                "text": "(An internal story was found but does not yet exist in the Playground DB)",
+            }
+        else:
+            return best_match_stories[0]
