@@ -4,7 +4,7 @@ import logging
 import os
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import httpx
 from pydantic import BaseModel
@@ -177,7 +177,7 @@ def get_all_bing_news_headlines(
 
 def match_headlines_to_internal_stories(
     headlines: List[Headline], query_strategy: HeadlineStoryQueryStrategy
-) -> List[Optional[Dict]]:
+) -> List[Optional[Tuple[Dict, float]]]:
     return list(
         ThreadPoolExecutor(max_workers=10).map(
             lambda h: match_headline_to_internal_story(h, query_strategy), headlines
@@ -187,7 +187,7 @@ def match_headlines_to_internal_stories(
 
 def match_headline_to_internal_story(
     headline: Headline, query_strategy: Optional[HeadlineStoryQueryStrategy] = None
-) -> Optional[Dict]:
+) -> Optional[Tuple[Dict, float]]:
     query_strategy = query_strategy or HeadlineStoryQueryStrategy.USE_SUMMARY
     match query_strategy:
         case HeadlineStoryQueryStrategy.USE_TITLE:
@@ -208,6 +208,7 @@ def match_headline_to_internal_story(
         return None
     else:
         best_match_story_id = similarity_results[0]["id"]
+        best_match_score = similarity_results[0]["similarity_score"]
         best_match_stories = get_stories_by_id([best_match_story_id])["data"]
         if len(best_match_stories) == 0:
             LOG.warning(
@@ -217,6 +218,6 @@ def match_headline_to_internal_story(
                 "id": best_match_story_id,
                 "title": "(An internal story was found but does not yet exist in the Playground DB)",
                 "text": "(An internal story was found but does not yet exist in the Playground DB)",
-            }
+            }, best_match_score
         else:
-            return best_match_stories[0]
+            return best_match_stories[0], best_match_score

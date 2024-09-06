@@ -1,4 +1,5 @@
 import datetime
+from typing import List, Optional, Tuple, Dict
 
 import httpx
 from django.http import Http404, HttpResponse
@@ -145,20 +146,20 @@ def news_ranking_prompt(request):
     )
 
     if story_matching_strategy is None:
-        story_matches = None
+        scored_story_matches = None
     else:
         story_matching_strategy = HeadlineStoryQueryStrategy.from_user_str(
             story_matching_strategy
         )
-        story_matches = services.headlines.match_headlines_to_internal_stories(
+        scored_story_matches = services.headlines.match_headlines_to_internal_stories(
             [headline for headline, _ in reranked_headlines], story_matching_strategy
         )
 
-    if story_matches is not None:
+    if scored_story_matches is not None:
         context = {
             "headlines": headlines,
             "reranked_headlines_and_stories": list(
-                zip(reranked_headlines, story_matches)
+                zip(reranked_headlines, scored_story_matches)
             ),
             "has_story_matches": True,
         }
