@@ -1,5 +1,4 @@
 import datetime
-from typing import List, Optional, Tuple, Dict
 
 import httpx
 from django.http import Http404, HttpResponse

@@ -218,6 +218,8 @@ def match_headline_to_internal_story(
                 "id": best_match_story_id,
                 "title": "(An internal story was found but does not yet exist in the Playground DB)",
                 "text": "(An internal story was found but does not yet exist in the Playground DB)",
+                "published_at": "UNKNOWN",
+                "publication": "UNKNOWN",
             }, best_match_score
         else:
             return best_match_stories[0], best_match_score
