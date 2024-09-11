@@ -1,5 +1,5 @@
 import datetime
-
+import logging
 import httpx
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
@@ -9,6 +9,8 @@ from django.views.decorators import csrf, http
 from app import repo
 from src import constants, firebase, services
 from src.services.headlines import HeadlineStoryQueryStrategy
+
+logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -75,6 +77,7 @@ def score_ranking_prompt(request):
     is_vector_search = request.POST.get("is-vector-search")
     vector_query = request.POST.get("vector-query")
     sampling_method = request.POST.get("sampling-method")
+    logger.info(f"Score Ranking|Vector Query: {vector_query}|Prompt: {prompt_value}")
     start_date = (
         datetime.datetime.now()
         - datetime.timedelta(days=int(request.POST.get("start-date")))
@@ -126,6 +129,7 @@ def news_ranking_prompt(request):
     is_top_headlines = selected_news_feed == "top-headlines"
     headline_limit = int(request.POST.get("headline-limit"))
     story_matching_strategy = request.POST.get("internal-story-matching")
+    logger.info(f"News Ranking|Market: {news_market}|Prompt: {prompt_value}")
 
     try:
         headlines = services.headlines.get_all_bing_news_headlines(
