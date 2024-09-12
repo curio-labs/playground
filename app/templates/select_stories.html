@@ -1,0 +1,17 @@
+<div id="select-options" class="mb-6">
+    <div class="font-bold text-white">Select Stories</div>
+    <div class="mt-4 space-y-4">
+        {% for story in stories %}
+        <div class="flex items-center">
+            <input
+                type="checkbox"
+                id="{{ story.id }}"
+                name="story-option"
+                value="{{ story.id }}"
+                class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+            >
+            <label for="{{ story.id }}" class="text-gray-300">{{ story.title }}</label>
+        </div>
+        {% endfor %}
+    </div>
+</div>
