@@ -19,15 +19,57 @@
             });
           });
       });
+
+      function showSuccessSavedMessage() {
+        const messageDiv = document.getElementById('savedMessage');
+        messageDiv.classList.remove('hidden');
+      }
+
+      function showErrorSavedMessage(message) {
+        const messageDiv = document.getElementById('errorMessage');
+        messageDiv.classList.remove('hidden');
+        messageDiv.textContent = message
+      }
+
+      function removeSuccessSavedMessage() {
+        const messageDiv = document.getElementById('savedMessage');
+        messageDiv.classList.add('hidden');
+      }
+
+      function removeErrorSavedMessage() {
+        const messageDiv = document.getElementById('errorMessage');
+        messageDiv.classList.add('hidden');
+      }
+
+      document.addEventListener("htmx:beforeRequest", function (event) {
+        const id = event.detail.elt.id;
+        if (id === "save-button" || id === "run-button" || id === "rerank-button") {
+          removeErrorSavedMessage()
+          removeSuccessSavedMessage()
+        }
+      });
+
+      document.addEventListener("htmx:afterRequest", function (event) {
+        if (event.detail.elt.id === "save-button") {
+          if (event.detail.xhr.status === 200) {
+            removeErrorSavedMessage()
+            showSuccessSavedMessage();
+          } else if (event.detail.xhr.status === 400) {
+            const response = JSON.parse(event.detail.xhr.responseText);
+            removeSuccessSavedMessage()
+            showErrorSavedMessage(response.error); // Show error message from API
+          }
+        }
+      });
     </script>
 </head>
-<body class="bg-black">
 
+<body class="h-screen bg-black">
 {% include 'navbar.html' %}
-{% include 'loading_indicator.html' %}
 
 
-<div class="pt-20">
+<div class="flex">
+    {% include 'loading_indicator.html' %}
     {% block content %}{% endblock %}
 </div>
 

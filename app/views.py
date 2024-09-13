@@ -2,7 +2,7 @@ import datetime
 import logging
 
 import httpx
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.views.decorators import csrf, http
@@ -125,6 +125,100 @@ def transform_stories(request):
         "transform_stories.html", {"stories": results, "transformation": transformation}
     )
     return HttpResponse(html)
+
+
+@csrf.csrf_exempt
+@http.require_POST
+def save_news_results(request):
+    prompt_name = request.POST.get("prompt-name")
+    vector_query = request.POST.get("vector-query")
+    start_date = request.POST.get("start-date")
+    prompt_value = request.POST.get("prompt-value")
+    sampling_method = request.POST.get("sampling-method")
+    story_limit = request.POST.get("story-limit")
+    attribute = request.POST.get("attribute")
+    is_vector_search = request.POST.get("is-vector-search")
+    is_gpt_ranking = request.POST.get("is-gpt-ranking")
+    story_ids = request.POST.getlist("story-id")
+    similarity_scores = request.POST.getlist("similarity-score")
+    vector_positions = request.POST.getlist("vector-position")
+    breakpoint()
+    if not prompt_name:
+        return JsonResponse(
+            {"status": "error", "error": "Prompt name is required."}, status=400
+        )
+    results = {
+        "prompt_name": prompt_name,
+        "vector_query": vector_query,
+        "start_date": start_date,
+        "prompt_value": prompt_value,
+        "sampling_method": sampling_method,
+        "story_limit": story_limit,
+        "attribute": attribute,
+        "is_vector_search": is_vector_search,
+        "is_gpt_ranking": is_gpt_ranking,
+        "story_ids": story_ids,
+        "similarity_scores": similarity_scores,
+        "vector_positions": vector_positions,
+    }
+
+    if not story_ids:
+        return JsonResponse(
+            {"status": "error", "error": "No stories selected."}, status=400
+        )
+    try:
+        repo.prompt_results.save(results=results)
+    except repo.prompt_results.PromptResultExistsError as e:
+        return JsonResponse({"status": "error", "error": str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({"status": "error", "error": str(e)}, status=400)
+
+
+@csrf.csrf_exempt
+@http.require_POST
+def save_results(request):
+    prompt_name = request.POST.get("prompt-name")
+    vector_query = request.POST.get("vector-query")
+    start_date = request.POST.get("start-date")
+    prompt_value = request.POST.get("prompt-value")
+    sampling_method = request.POST.get("sampling-method")
+    story_limit = request.POST.get("story-limit")
+    attribute = request.POST.get("attribute")
+    is_vector_search = request.POST.get("is-vector-search")
+    is_gpt_ranking = request.POST.get("is-gpt-ranking")
+    story_ids = request.POST.getlist("story-id")
+    similarity_scores = request.POST.getlist("similarity-score")
+    vector_positions = request.POST.getlist("vector-position")
+    if not prompt_name:
+        return JsonResponse(
+            {"status": "error", "error": "Prompt name is required."}, status=400
+        )
+    results = {
+        "prompt_name": prompt_name,
+        "vector_query": vector_query,
+        "start_date": start_date,
+        "prompt_value": prompt_value,
+        "sampling_method": sampling_method,
+        "story_limit": story_limit,
+        "attribute": attribute,
+        "is_vector_search": is_vector_search,
+        "is_gpt_ranking": is_gpt_ranking,
+        "story_ids": story_ids,
+        "similarity_scores": similarity_scores,
+        "vector_positions": vector_positions,
+    }
+
+    if not story_ids:
+        return JsonResponse(
+            {"status": "error", "error": "No stories selected."}, status=400
+        )
+    try:
+        repo.prompt_results.save(results=results)
+    except repo.prompt_results.PromptResultExistsError as e:
+        return JsonResponse({"status": "error", "error": str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({"status": "error", "error": str(e)}, status=400)
+    return JsonResponse({"status": "success"}, status=200)
 
 
 @csrf.csrf_exempt

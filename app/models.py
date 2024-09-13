@@ -57,3 +57,18 @@ class Story(models.Model):
 
     class Meta:
         db_table = "stories"
+
+
+class PromptResult(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    prompt_name = models.CharField(max_length=255, unique=True)
+    prompt_attributes = models.JSONField()
+    stories = models.JSONField()
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Prompt Result {self.id}"
+
+    class Meta:
+        db_table = "prompt_results"

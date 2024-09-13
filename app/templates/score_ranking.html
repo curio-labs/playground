@@ -1,18 +1,25 @@
 {% extends 'layout.html' %}
 
+
 {% block content %}
-<input name="csrf-token" id="csrf-token" type="hidden"/>
+<div class="flex">
+    {% include 'sidebar.html' %}
 
-<div class="">
-    <!-- Sidebar spanning 4 columns -->
-    <div class="fixed top-0 left-0 w-80 h-screen bg-gray-900 p-6 z-40 shadow-lg overflow-y-auto">
-        {% include 'sidebar.html' %}
-    </div>
+    <!-- Main Content -->
+    <div class="ml-80 mt-16 p-8 w-full h-screen overflow-y-auto text-white">
 
-    <!-- Main content spanning 8 columns -->
-    <div class="ml-80">
-        <div id="output-box">
+        <!-- Success Message -->
+        <div id="savedMessage" class="bg-green-100 text-green-800 px-4 py-2 mt-4 rounded hidden">
+            <strong>Results Saved!</strong> Your changes have been saved successfully.
         </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="bg-red-100 text-red-800 px-4 py-2 mt-4 rounded hidden">
+            <strong>Error:</strong> Something went wrong.
+        </div>
+        <div id="output-box" class="mt-4 px-16">
+        </div>
+
     </div>
 </div>
 
