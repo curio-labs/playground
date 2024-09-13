@@ -39,6 +39,10 @@ class LLMSingleStoryValueResponse(BaseModel):
     value: float
 
 
+class LLMTransformStoriesResponse(BaseModel):
+    text: str
+
+
 class HeadlineIdentifier(BaseModel):
     id: str = Field(description="The identifier of the originally supplied headline.")
 
@@ -269,3 +273,17 @@ def make_concurrent_llm_requests_for_stories(
     results = sorted(results, key=lambda x: x["value"], reverse=True)
     del stories
     return results
+
+
+def transform_stories(stories, prompt):
+    result = client.beta.chat.completions.parse(
+        model=OPEN_AI_DEFAULT_MODEL,
+        messages=[
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": json.dumps(stories)},
+        ],
+        response_format=LLMTransformStoriesResponse,
+    )
+    data = result.choices[0].message.parsed.json()
+    result = json.loads(data)
+    return result["text"]

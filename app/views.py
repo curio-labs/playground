@@ -1,5 +1,6 @@
 import datetime
 import logging
+
 import httpx
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
@@ -23,10 +24,107 @@ def score_ranking(request):
 
 
 def news_ranking(request):
-    return render(
-        request,
-        "news_ranking.html",
+    return render(request, "news_ranking.html")
+
+
+def transformer(request):
+    return render(request, "transformer.html")
+
+
+@csrf.csrf_exempt
+@http.require_POST
+def saved_prompts_view(request):
+    # Example of options, you can retrieve this dynamically
+    prompt_id = request.POST.get("saved-prompts")
+    if prompt_id == "1":
+        stories = [
+            {"title": "Option A", "id": "optionA"},
+            {"title": "Option B", "id": "optionB"},
+            {"title": "Option C", "id": "optionC"},
+        ]
+    elif prompt_id == "2":
+        stories = [
+            {"title": "Option D", "id": "optionD"},
+            {"title": "Option E", "id": "optionE"},
+            {"title": "Option F", "id": "optionF"},
+        ]
+    elif prompt_id == "3":
+        stories = [
+            {"title": "Option G", "id": "optionG"},
+            {"title": "Option H", "id": "optionH"},
+            {"title": "Option I", "id": "optionI"},
+        ]
+    else:
+        stories = []
+    html = render_to_string("select_stories.html", {"stories": stories})
+    return HttpResponse(html)
+
+
+@csrf.csrf_exempt
+@http.require_POST
+def transform_stories(request):
+    stories = request.POST.getlist("story-option")
+    transform_prompt = request.POST.get("prompt-value")
+    story_bank = [
+        {
+            "title": "Option A",
+            "id": "optionA",
+            "text": "This is a story about option A",
+        },
+        {
+            "title": "Option B",
+            "id": "optionB",
+            "text": "This is a story about option B",
+        },
+        {
+            "title": "Option C",
+            "id": "optionC",
+            "text": "This is a story about option C",
+        },
+        {
+            "title": "Option D",
+            "id": "optionD",
+            "text": "This is a story about option D",
+        },
+        {
+            "title": "Option E",
+            "id": "optionE",
+            "text": "This is a story about option E",
+        },
+        {
+            "title": "Option F",
+            "id": "optionF",
+            "text": "This is a story about option F",
+        },
+        {
+            "title": "Option G",
+            "id": "optionG",
+            "text": "This is a story about option G",
+        },
+        {
+            "title": "Option H",
+            "id": "optionH",
+            "text": "This is a story about option H",
+        },
+        {
+            "title": "Option I",
+            "id": "optionI",
+            "text": "This is a story about option I",
+        },
+    ]
+    results = []
+    for story in stories:
+        for bank_story in story_bank:
+            if story == bank_story["id"]:
+                results.append(bank_story)
+
+    transformation = services.llm.transform_stories(
+        stories=results, prompt=transform_prompt
     )
+    html = render_to_string(
+        "transform_stories.html", {"stories": results, "transformation": transformation}
+    )
+    return HttpResponse(html)
 
 
 @csrf.csrf_exempt
