@@ -1,0 +1,47 @@
+<div class="fixed top-16 left-0 w-80 h-[calc(100vh-4rem)] bg-gray-900 text-white p-4 flex flex-col">
+    <div class="text-2xl font-bold text-white mb-6">Saved Prompts</div>
+
+    <!-- Scrollable content -->
+    <div class="overflow-y-auto flex-grow">
+        <div class="mb-6">
+            <label class="font-bold text-gray-300" for="saved-prompts">Select a Saved Prompt</label>
+            <select id="saved-prompts" name="saved-prompts"
+                    class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+                    hx-post="/saved-prompts/"
+                    hx-trigger="change"
+                    hx-include="[name='saved-prompt']"
+                    hx-target="#select-options"
+                    hx-swap="outerHTML">
+                <option value="" disabled selected>Select a prompt...</option>
+                {% for prompt in prompts %}
+                <option value="{{ prompt.id }}">{{ prompt.prompt_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- This section will be replaced when the user selects a saved prompt -->
+        <div id="select-options" class="mb-6">
+        </div>
+
+        <div class="my-6">
+            <label class="font-bold text-gray-300" for="prompt-value">LLM Transformer Prompt</label>
+            <textarea name="prompt-value" id="prompt-value"
+                      rows="4"
+                      class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+                      placeholder="Enter your transformation prompt here..."></textarea>
+        </div>
+    </div>
+
+    <!-- Fixed button at the bottom -->
+    <div class="pt-4">
+        <button class="w-full py-3 bg-rioRed text-white rounded-md shadow hover:bg-rioRed-dark focus:outline-none"
+                hx-post="/transform-stories/"
+                hx-target="#output-box"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                hx-swap="innerHTML"
+                hx-include="[name^=story-option], [name=saved-prompts], [name=prompt-value]"
+                hx-indicator="#loading-indicator">
+            Apply Selected Option
+        </button>
+    </div>
+</div>

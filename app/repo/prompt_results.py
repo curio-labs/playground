@@ -1,6 +1,7 @@
-from app import models as md
 from django.db import IntegrityError
 
+from app import models as md
+from src import services
 
 PROMPT_NAME_DUPLICATE_ERROR = (
     'duplicate key value violates unique constraint "prompt_results_prompt_name_key"'
@@ -47,13 +48,49 @@ def save(results):
     try:
         prompt_result.save()
     except IntegrityError as e:
-        breakpoint()
         if str(e)[: len(PROMPT_NAME_DUPLICATE_ERROR)] == PROMPT_NAME_DUPLICATE_ERROR:
             raise PromptResultExistsError(
                 f"Prompt result with name '{prompt_name}' already exists."
-            )
+            ) from None
         raise e
     except Exception as e:
         raise e
 
     return prompt_result
+
+
+def get_all():
+    return md.PromptResult.objects.all()
+
+
+def get_stories_by_prompt_id(prompt_id):
+    stories = md.PromptResult.objects.get(id=prompt_id).stories["data"]
+    results = []
+    db_stories = services.get_stories_by_id(
+        story_ids=[story["id"] for story in stories]
+    )["data"]
+    for story in stories:
+        result = next(
+            (
+                {
+                    "id": db_story["id"],
+                    "title": db_story["title"],
+                    "text": db_story["text"],
+                    "published_at": db_story["published_at"],
+                    "publication": db_story["publication"],
+                    "author": db_story["author"],
+                    "type": db_story["type"],
+                    "classification": db_story["classification"],
+                    "similarity_score": story["similarity_score"],
+                    "vector_position": story["vector_position"],
+                }
+                for db_story in db_stories
+                if db_story["id"] == story["id"]
+            ),
+            None,
+        )
+        if result:
+            results.append(result)
+
+    results = sorted(results, key=lambda x: x["similarity_score"], reverse=True)
+    return results

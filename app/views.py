@@ -28,7 +28,8 @@ def news_ranking(request):
 
 
 def transformer(request):
-    return render(request, "transformer.html")
+    prompts = repo.prompt_results.get_all()
+    return render(request, "transformer.html", {"prompts": prompts})
 
 
 @csrf.csrf_exempt
@@ -36,26 +37,7 @@ def transformer(request):
 def saved_prompts_view(request):
     # Example of options, you can retrieve this dynamically
     prompt_id = request.POST.get("saved-prompts")
-    if prompt_id == "1":
-        stories = [
-            {"title": "Option A", "id": "optionA"},
-            {"title": "Option B", "id": "optionB"},
-            {"title": "Option C", "id": "optionC"},
-        ]
-    elif prompt_id == "2":
-        stories = [
-            {"title": "Option D", "id": "optionD"},
-            {"title": "Option E", "id": "optionE"},
-            {"title": "Option F", "id": "optionF"},
-        ]
-    elif prompt_id == "3":
-        stories = [
-            {"title": "Option G", "id": "optionG"},
-            {"title": "Option H", "id": "optionH"},
-            {"title": "Option I", "id": "optionI"},
-        ]
-    else:
-        stories = []
+    stories = repo.prompt_results.get_stories_by_prompt_id(prompt_id=prompt_id)
     html = render_to_string("select_stories.html", {"stories": stories})
     return HttpResponse(html)
 
@@ -65,58 +47,7 @@ def saved_prompts_view(request):
 def transform_stories(request):
     stories = request.POST.getlist("story-option")
     transform_prompt = request.POST.get("prompt-value")
-    story_bank = [
-        {
-            "title": "Option A",
-            "id": "optionA",
-            "text": "This is a story about option A",
-        },
-        {
-            "title": "Option B",
-            "id": "optionB",
-            "text": "This is a story about option B",
-        },
-        {
-            "title": "Option C",
-            "id": "optionC",
-            "text": "This is a story about option C",
-        },
-        {
-            "title": "Option D",
-            "id": "optionD",
-            "text": "This is a story about option D",
-        },
-        {
-            "title": "Option E",
-            "id": "optionE",
-            "text": "This is a story about option E",
-        },
-        {
-            "title": "Option F",
-            "id": "optionF",
-            "text": "This is a story about option F",
-        },
-        {
-            "title": "Option G",
-            "id": "optionG",
-            "text": "This is a story about option G",
-        },
-        {
-            "title": "Option H",
-            "id": "optionH",
-            "text": "This is a story about option H",
-        },
-        {
-            "title": "Option I",
-            "id": "optionI",
-            "text": "This is a story about option I",
-        },
-    ]
-    results = []
-    for story in stories:
-        for bank_story in story_bank:
-            if story == bank_story["id"]:
-                results.append(bank_story)
+    results = services.get_stories_by_id(story_ids=stories)["data"]
 
     transformation = services.llm.transform_stories(
         stories=results, prompt=transform_prompt
@@ -142,7 +73,6 @@ def save_news_results(request):
     story_ids = request.POST.getlist("story-id")
     similarity_scores = request.POST.getlist("similarity-score")
     vector_positions = request.POST.getlist("vector-position")
-    breakpoint()
     if not prompt_name:
         return JsonResponse(
             {"status": "error", "error": "Prompt name is required."}, status=400
