@@ -276,11 +276,19 @@ def make_concurrent_llm_requests_for_stories(
 
 
 def transform_stories(stories, prompt):
+    content = []
+    for story in stories:
+        data = {
+            "title": story["title"],
+            "text": story["text"],
+        }
+        content.append(data)
+
     result = client.beta.chat.completions.parse(
         model=OPEN_AI_DEFAULT_MODEL,
         messages=[
             {"role": "system", "content": prompt},
-            {"role": "user", "content": json.dumps(stories)},
+            {"role": "user", "content": json.dumps(content)},
         ],
         response_format=LLMTransformStoriesResponse,
     )

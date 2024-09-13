@@ -1,108 +1,132 @@
-<div class="text-2xl font-bold text-white mb-6">Controls</div>
-
-<div class="mb-6">
-    <label class="font-bold text-gray-300" for="prompt-name">Name</label>
-    <input id="prompt-name" name="prompt-name"
-           class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-           placeholder="Enter your save name here..."/>
-</div>
-
-<div class="mb-6">
-    <label class="font-bold text-gray-300" for="news-market">News market/locale</label>
-    <textarea name="news-market" id="news-market"
-              rows="4"
-              class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-              placeholder="Enter your news market (e.g US, GB)."></textarea>
-</div>
-
-<div class="mb-6">
-    <div class="font-bold text-white">BingNews Feed</div>
-    <div class="grid grid-cols-2 gap-4 mt-4">
-         <div>
-            <input
-                    type="radio"
-                    id="is-categorised-headlines"
-                    name="selected-news-feed"
-                    value="categorised-headlines"
-                    class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed" 
-                    checked>
-            <label for="is-categorised-headlines" class="text-gray-300">Categorised headlines</label>
-        </div>
-        <div>
-            <input
-                    type="radio"
-                    id="is-top-headlines"
-                    name="selected-news-feed"
-                    class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
-                    value="top-headlines">
-            <label for="is-top-headlines" class="text-gray-300">Top General Headlines</label>
-        </div>
-       
+<div class="fixed top-16 left-0 w-80 h-screen bg-gray-900 text-white p-4">
+    <div class="mb-6">
+        <label class="font-bold text-gray-300" for="prompt-name">Name</label>
+        <input id="prompt-name" name="prompt-name"
+               class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+               placeholder="Enter your save name here..."/>
     </div>
-</div>
 
-<div class="mb-6">
-    <div class="font-bold text-white">Internal Story matching</div>
-    <div class="grid lg:grid-cols-3 gap-4 mt-4">
-         <div>
-            <input
-                    type="radio"
-                    id="match-on-title"
-                    name="internal-story-matching"
-                    value="match-on-title"
-                    class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed" 
-                    checked>
-            <label for="match-on-title" class="text-gray-300">Match on title</label>
-        </div>
-        <div>
-            <input
-                    type="radio"
-                    id="match-on-summary"
-                    name="internal-story-matching"
-                    class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
-                    value="match-on-summary">
-            <label for="match-on-summary" class="text-gray-300">Match on summary</label>
-        </div>
-         <div>
-            <input
-                    type="radio"
-                    id="match-on-both"
-                    name="internal-story-matching"
-                    class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
-                    value="match-on-both">
-            <label for="match-on-both" class="text-gray-300">Match on both</label>
+    <div class="mb-6">
+        <label class="font-bold text-gray-300" for="news-market">News market/locale</label>
+        <textarea name="news-market" id="news-market"
+                  rows="4"
+                  class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+                  placeholder="Enter your news market (e.g US, GB)."></textarea>
+    </div>
+
+    <div class="mb-6">
+        <div class="font-bold text-white">BingNews Feed</div>
+        <div class="grid grid-cols-2 gap-4 mt-4">
+            <div>
+                <input
+                        type="radio"
+                        id="is-categorised-headlines"
+                        name="selected-news-feed"
+                        value="categorised-headlines"
+                        class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                        checked>
+                <label for="is-categorised-headlines" class="text-gray-300">Categorised headlines</label>
+            </div>
+            <div>
+                <input
+                        type="radio"
+                        id="is-top-headlines"
+                        name="selected-news-feed"
+                        class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                        value="top-headlines">
+                <label for="is-top-headlines" class="text-gray-300">Top General Headlines</label>
+            </div>
+
         </div>
     </div>
-</div>
 
-<div class="mb-6 flex justify-between items-center">
-    <label class="font-bold text-gray-300 " for="headline-limit">Num. Raw Headlines (only applies when selecting the Top General Headlines feed)</label>
-    <input id="headline-limit" name="headline-limit"
-           class="mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-           type="number" value="20"
-           max="50" min="10"/>
-</div>
+    <div class="mb-6">
+        <div class="font-bold text-white">Internal Story matching</div>
+        <div class="grid lg:grid-cols-3 gap-4 mt-4">
+            <div>
+                <input
+                        type="radio"
+                        id="match-on-title"
+                        name="internal-story-matching"
+                        value="match-on-title"
+                        class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                        checked>
+                <label for="match-on-title" class="text-gray-300">Match on title</label>
+            </div>
+            <div>
+                <input
+                        type="radio"
+                        id="match-on-summary"
+                        name="internal-story-matching"
+                        class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                        value="match-on-summary">
+                <label for="match-on-summary" class="text-gray-300">Match on summary</label>
+            </div>
+            <div>
+                <input
+                        type="radio"
+                        id="match-on-both"
+                        name="internal-story-matching"
+                        class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                        value="match-on-both">
+                <label for="match-on-both" class="text-gray-300">Match on both</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-6 flex justify-between items-center">
+        <label class="font-bold text-gray-300 " for="headline-limit">Num. Raw Headlines (only applies when selecting the
+            Top General Headlines feed)</label>
+        <input id="headline-limit" name="headline-limit"
+               class="mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+               type="number" value="20"
+               max="50" min="10"/>
+    </div>
 
 
-<div class="mb-6">
-    <label class="font-bold text-gray-300" for="prompt-value">LLM re-ranking prompt</label>
-    <textarea name="prompt-value" id="prompt-value"
-              rows="4"
-              class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-              placeholder="Enter your LLM re-ranking prompt here..."></textarea>
-</div>
+    <div class="mb-6">
+        <label class="font-bold text-gray-300" for="prompt-value">LLM re-ranking prompt</label>
+        <textarea name="prompt-value" id="prompt-value"
+                  rows="4"
+                  class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+                  placeholder="Enter your LLM re-ranking prompt here..."></textarea>
+    </div>
 
 
-
-<!-- Buttons for Running Prompt -->
-<div class="flex flex-col gap-4">
-    <button class="w-full py-3 bg-rioRed text-white rounded-md shadow hover:bg-rioRed-dark focus:outline-none"
-            hx-post="/news-ranking-prompt/"
-            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-            hx-target="#output-box"
-            hx-swap="innerHTML"
-            hx-include="[name=prompt-value], [name=news-market], [name=selected-news-feed], [name=headline-limit], [name=internal-story-matching]"
-            hx-indicator="#loading-indicator"
-    >Run
-    </button>
+    <!-- Buttons for Running Prompt -->
+    <div class="flex flex-col gap-4">
+        <button class="w-full py-3 bg-rioRed text-white rounded-md shadow hover:bg-rioRed-dark focus:outline-none"
+                hx-post="/news-ranking-prompt/"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                hx-target="#output-box"
+                hx-swap="innerHTML"
+                hx-include="
+                [name=news-market],
+                [name=selected-news-feed],
+                [name=headline-limit],
+                [name=internal-story-matching]
+                [name=prompt-value]
+"
+                hx-indicator="#loading-indicator"
+        >Run
+        </button>
+        <button class="w-full py-3 bg-blue-600 text-white rounded-md shadow hover:bg-gray-600 focus:outline-none"
+                id="save-button"
+                hx-post="/save-news-results/"
+                hx-swap="none"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                hx-include="
+                [name=prompt-name],
+                [name=news-market],
+                [name=selected-news-feed],
+                [name=headline-limit],
+                [name=internal-story-matching]
+                [name=prompt-value],
+                [name=story-id],
+                [name=similarity-score],
+                [name=vector-position]"
+                hx-indicator="#loading-indicator">
+            SAVE
+        </button>
+    </div>
 </div>
