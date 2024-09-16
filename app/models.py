@@ -63,6 +63,7 @@ class PromptResult(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     prompt_name = models.CharField(max_length=255, unique=True)
     prompt_attributes = models.JSONField()
+    playground = models.CharField(max_length=255, default=None, null=True)
     stories = models.JSONField()
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)

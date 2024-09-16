@@ -13,35 +13,48 @@ class PromptResultExistsError(Exception):
     pass
 
 
-def save(results):
+def save(results, playground):
     prompt_name = results["prompt_name"]
-    prompt_attributes = {
-        "vector_query": results["vector_query"],
-        "start_date": results["start_date"],
-        "prompt_value": results["prompt_value"],
-        "sampling_method": results["sampling_method"],
-        "story_limit": results["story_limit"],
-        "attribute": results["attribute"],
-        "is_vector_search": results["is_vector_search"],
-        "is_gpt_ranking": results["is_gpt_ranking"],
-    }
-
-    stories = {"data": []}
-    for story_id, similarity_score, vector_position in zip(
-        results["story_ids"],
-        results["similarity_scores"],
-        results["vector_positions"],
-    ):
-        stories["data"].append(
-            {
-                "id": story_id,
-                "similarity_score": similarity_score,
-                "vector_position": vector_position,
-            }
-        )
+    if playground == "ranking":
+        prompt_attributes = {
+            "vector_query": results["vector_query"],
+            "start_date": results["start_date"],
+            "prompt_value": results["prompt_value"],
+            "sampling_method": results["sampling_method"],
+            "story_limit": results["story_limit"],
+            "attribute": results["attribute"],
+            "is_vector_search": results["is_vector_search"],
+            "is_gpt_ranking": results["is_gpt_ranking"],
+        }
+        stories = {"data": []}
+        for story_id, similarity_score, vector_position in zip(
+            results["story_ids"],
+            results["similarity_scores"],
+            results["vector_positions"],
+        ):
+            stories["data"].append(
+                {
+                    "id": story_id,
+                    "similarity_score": similarity_score,
+                    "vector_position": vector_position,
+                }
+            )
+    elif playground == "news":
+        prompt_attributes = {
+            "prompt_name": prompt_name,
+            "news_market": results["news_market"],
+            "selected_news_feed": results["selected_news_feed"],
+            "headline_limit": results["headline_limit"],
+            "internal_story_matching": results["internal_story_matching"],
+            "prompt_value": results["prompt_value"],
+        }
+        stories = {"data": results["stories"]}
+    else:
+        raise ValueError(f"Invalid playground '{playground}'")
 
     prompt_result = md.PromptResult(
         prompt_name=prompt_name,
+        playground=playground,
         prompt_attributes=prompt_attributes,
         stories=stories,
     )

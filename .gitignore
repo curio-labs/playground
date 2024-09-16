@@ -1,4 +1,5 @@
 # User defined
+cached_news_ranking_result.json
 .DS_Store
 id_rsa.pem
 roles.sql

@@ -4,6 +4,7 @@
         <div class="mb-4">
             <label class="font-bold text-gray-300" for="prompt-name">Name</label>
             <input id="prompt-name" name="prompt-name"
+                   value="testing1234"
                    class="w-full mt-1 px-2 py-1 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
                    placeholder="Enter your save name here..."/>
         </div>
@@ -13,7 +14,7 @@
             <textarea name="news-market" id="news-market"
                       rows="3"
                       class="w-full mt-1 px-2 py-1 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-                      placeholder="Enter your news market (e.g US, GB)."></textarea>
+                      placeholder="Enter your news market (e.g US, GB).">US</textarea>
         </div>
 
         <div class="mb-4">
@@ -92,7 +93,7 @@
             <textarea name="prompt-value" id="prompt-value"
                       rows="3"
                       class="w-full mt-1 px-2 py-1 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-                      placeholder="Enter your LLM re-ranking prompt here..."></textarea>
+                      placeholder="Enter your LLM re-ranking prompt here...">technology</textarea>
         </div>
     </div>
 
@@ -126,11 +127,45 @@
                 [name=headline-limit],
                 [name=internal-story-matching]
                 [name=prompt-value],
-                [name=story-id],
-                [name=similarity-score],
-                [name=vector-position]"
+                [name=matched-stories],
+                [name=unmatched-stories]"
                 hx-indicator="#loading-indicator">
             SAVE
         </button>
+        <script>
+          // JavaScript to collect matched and unmatched stories
+          document.addEventListener('htmx:configRequest', function (evt) {
+            const matchedStories = [...document.querySelectorAll("#headline-reranking-results table tbody tr")]
+              .map(row => {
+                const cells = row.querySelectorAll('td');
+                return {
+                  title: cells[0].textContent,
+                  summary: cells[1].textContent,
+                  publication: cells[2].textContent,
+                  category: cells[3].textContent,
+                  score: cells[4] ? parseFloat(cells[4].textContent) : null,
+                  internalStory: cells[5] ? cells[5].textContent : null,
+                  internalStoryPublisher: cells[6] ? cells[6].textContent : null,
+                  internalStoryTime: cells[7] ? cells[7].textContent : null,
+                  internalStorySimilarity: cells[8] ? parseFloat(cells[8].textContent) : null
+                };
+              });
+
+            const unmatchedStories = [...document.querySelectorAll("#headline-results table tbody tr")]
+              .map(row => {
+                const cells = row.querySelectorAll('td');
+                return {
+                  title: cells[0].textContent,
+                  summary: cells[1].textContent,
+                  publication: cells[2].textContent,
+                  category: cells[3].textContent
+                };
+              });
+
+            console.log(matchedStories);
+            evt.detail.parameters['matched-stories'] = JSON.stringify(matchedStories);
+            evt.detail.parameters['unmatched-stories'] = JSON.stringify(unmatchedStories);
+          });
+        </script>
     </div>
 </div>

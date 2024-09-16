@@ -1,4 +1,6 @@
 import datetime
+import os
+import json
 import logging
 
 import httpx
@@ -6,12 +8,27 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.views.decorators import csrf, http
+from django.conf import settings
 
 from app import repo
 from src import constants, firebase, services
 from src.services.headlines import HeadlineStoryQueryStrategy
 
 logger = logging.getLogger(__name__)
+
+CACHE_FILE = "cached_news_ranking_result.json"
+
+
+def cache_result_to_file(data):
+    with open(CACHE_FILE, "w") as f:
+        json.dump(data, f)
+
+
+def load_cached_result():
+    if os.path.exists(CACHE_FILE):
+        with open(CACHE_FILE, "r") as f:
+            return json.load(f)
+    return None
 
 
 def index(request):
@@ -61,47 +78,55 @@ def transform_stories(request):
 @csrf.csrf_exempt
 @http.require_POST
 def save_news_results(request):
+    # Extract form inputs from the request
     prompt_name = request.POST.get("prompt-name")
-    vector_query = request.POST.get("vector-query")
-    start_date = request.POST.get("start-date")
+    news_market = request.POST.get("news-market")
+    selected_news_feed = request.POST.get("selected-news-feed")
+    headline_limit = request.POST.get("headline-limit")
+    internal_story_matching = request.POST.get("internal-story-matching")
     prompt_value = request.POST.get("prompt-value")
-    sampling_method = request.POST.get("sampling-method")
-    story_limit = request.POST.get("story-limit")
-    attribute = request.POST.get("attribute")
-    is_vector_search = request.POST.get("is-vector-search")
-    is_gpt_ranking = request.POST.get("is-gpt-ranking")
-    story_ids = request.POST.getlist("story-id")
-    similarity_scores = request.POST.getlist("similarity-score")
-    vector_positions = request.POST.getlist("vector-position")
+
+    # Collecting matched and unmatched stories from the request
+    matched_stories = json.loads(request.POST.get("matched-stories", "[]"))
+    unmatched_stories = json.loads(request.POST.get("unmatched-stories", "[]"))
+
+    # Merging matched and unmatched stories, with an additional "matched" key
+    stories = [{**story, "matched": True} for story in matched_stories] + [
+        {**story, "matched": False} for story in unmatched_stories
+    ]
+
+    # Validate prompt name
     if not prompt_name:
         return JsonResponse(
             {"status": "error", "error": "Prompt name is required."}, status=400
         )
+
+    # Prepare the results object with the parameters and stories
     results = {
         "prompt_name": prompt_name,
-        "vector_query": vector_query,
-        "start_date": start_date,
+        "news_market": news_market,
+        "selected_news_feed": selected_news_feed,
+        "headline_limit": headline_limit,
+        "internal_story_matching": internal_story_matching,
         "prompt_value": prompt_value,
-        "sampling_method": sampling_method,
-        "story_limit": story_limit,
-        "attribute": attribute,
-        "is_vector_search": is_vector_search,
-        "is_gpt_ranking": is_gpt_ranking,
-        "story_ids": story_ids,
-        "similarity_scores": similarity_scores,
-        "vector_positions": vector_positions,
+        "stories": stories,  # Include all stories in the result
     }
 
-    if not story_ids:
+    # Validate stories
+    if not matched_stories and not unmatched_stories:
         return JsonResponse(
             {"status": "error", "error": "No stories selected."}, status=400
         )
+
     try:
-        repo.prompt_results.save(results=results)
+        # Save the results to the repository
+        repo.prompt_results.save(results=results, playground="news")
     except repo.prompt_results.PromptResultExistsError as e:
         return JsonResponse({"status": "error", "error": str(e)}, status=400)
     except Exception as e:
         return JsonResponse({"status": "error", "error": str(e)}, status=400)
+
+    return JsonResponse({"status": "success", "results": results})
 
 
 @csrf.csrf_exempt
@@ -143,7 +168,7 @@ def save_results(request):
             {"status": "error", "error": "No stories selected."}, status=400
         )
     try:
-        repo.prompt_results.save(results=results)
+        repo.prompt_results.save(results=results, playground="ranking")
     except repo.prompt_results.PromptResultExistsError as e:
         return JsonResponse({"status": "error", "error": str(e)}, status=400)
     except Exception as e:
@@ -245,6 +270,10 @@ def score_ranking_prompt(request):
 @csrf.csrf_exempt
 @http.require_POST
 def news_ranking_prompt(request):
+    if settings.ENVIRONMENT == "development":
+        cached_result = load_cached_result()
+        if cached_result:
+            return HttpResponse(cached_result)
     prompt_value = request.POST.get("prompt-value")
     news_market = request.POST.get("news-market")
     selected_news_feed = request.POST.get("selected-news-feed")
@@ -298,6 +327,9 @@ def news_ranking_prompt(request):
         "reranked_headlines_table.html",
         context,
     )
+    if settings.ENVIRONMENT == "development":
+        cache_result_to_file(html)
+
     return HttpResponse(html)
 
 
