@@ -1,5 +1,6 @@
 from django.db import IntegrityError
 
+
 from app import models as md
 from src import services
 
@@ -77,33 +78,48 @@ def get_all():
 
 
 def get_stories_by_prompt_id(prompt_id):
-    stories = md.PromptResult.objects.get(id=prompt_id).stories["data"]
-    results = []
-    db_stories = services.get_stories_by_id(
-        story_ids=[story["id"] for story in stories]
-    )["data"]
-    for story in stories:
-        result = next(
-            (
-                {
-                    "id": db_story["id"],
-                    "title": db_story["title"],
-                    "text": db_story["text"],
-                    "published_at": db_story["published_at"],
-                    "publication": db_story["publication"],
-                    "author": db_story["author"],
-                    "type": db_story["type"],
-                    "classification": db_story["classification"],
-                    "similarity_score": story["similarity_score"],
-                    "vector_position": story["vector_position"],
-                }
-                for db_story in db_stories
-                if db_story["id"] == story["id"]
-            ),
-            None,
-        )
-        if result:
-            results.append(result)
+    result = services.cache.load_cached_result(filename="transformation.json")
+    if result:
+        return result
+    prompt_result = md.PromptResult.objects.get(id=prompt_id)
+    if prompt_result.playground == "ranking":
+        stories = prompt_result.stories["data"]
+        results = []
+        db_stories = services.get_stories_by_id(
+            story_ids=[story["id"] for story in stories]
+        )["data"]
+        for story in stories:
+            result = next(
+                (
+                    {
+                        "id": db_story["id"],
+                        "title": db_story["title"],
+                        "text": db_story["text"],
+                        "published_at": db_story["published_at"],
+                        "publication": db_story["publication"],
+                        "author": db_story["author"],
+                        "type": db_story["type"],
+                        "classification": db_story["classification"],
+                        "similarity_score": story["similarity_score"],
+                        "vector_position": story["vector_position"],
+                    }
+                    for db_story in db_stories
+                    if db_story["id"] == story["id"]
+                ),
+                None,
+            )
+            if result:
+                results.append(result)
 
-    results = sorted(results, key=lambda x: x["similarity_score"], reverse=True)
+        results = sorted(results, key=lambda x: x["similarity_score"], reverse=True)
+        results = {"type": "ranking", "data": results}
+    elif prompt_result.playground == "news":
+        stories = prompt_result.stories["data"]
+        results = {"type": "news", "data": stories}
+        services.cache.cache_result_to_file(results, filename="transformation.json")
+        return results
+
+    else:
+        raise ValueError(f"Invalid playground '{prompt_result.playground}'")
+
     return results

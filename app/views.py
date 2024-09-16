@@ -1,5 +1,4 @@
 import datetime
-import os
 import json
 import logging
 
@@ -12,23 +11,10 @@ from django.conf import settings
 
 from app import repo
 from src import constants, firebase, services
+from src.services.cache import cache_result_to_file, load_cached_result
 from src.services.headlines import HeadlineStoryQueryStrategy
 
 logger = logging.getLogger(__name__)
-
-CACHE_FILE = "cached_news_ranking_result.json"
-
-
-def cache_result_to_file(data):
-    with open(CACHE_FILE, "w") as f:
-        json.dump(data, f)
-
-
-def load_cached_result():
-    if os.path.exists(CACHE_FILE):
-        with open(CACHE_FILE, "r") as f:
-            return json.load(f)
-    return None
 
 
 def index(request):
@@ -54,8 +40,16 @@ def transformer(request):
 def saved_prompts_view(request):
     # Example of options, you can retrieve this dynamically
     prompt_id = request.POST.get("saved-prompts")
-    stories = repo.prompt_results.get_stories_by_prompt_id(prompt_id=prompt_id)
-    html = render_to_string("select_stories.html", {"stories": stories})
+    results = repo.prompt_results.get_stories_by_prompt_id(prompt_id=prompt_id)
+    if results["type"] == "ranking":
+        html = render_to_string("select_stories.html", {"stories": results["data"]})
+    elif results["type"] == "news":
+        print(results["data"][0])
+        html = render_to_string(
+            "select_news_stories.html", {"stories": results["data"]}
+        )
+    else:
+        raise ValueError(f"Invalid prompt type '{results['type']}'")
     return HttpResponse(html)
 
 

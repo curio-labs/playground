@@ -1,8 +1,31 @@
 <div class="fixed top-16 left-0 w-80 h-[calc(100vh-4rem)] bg-gray-900 text-white p-4 flex flex-col">
-    <div class="text-2xl font-bold text-white mb-6">Saved Prompts</div>
-
     <!-- Scrollable content -->
     <div class="overflow-y-auto flex-grow">
+        <div class="mb-4">
+            <div class="font-bold text-white">Playground</div>
+            <div class="grid grid-cols-2 gap-1 mt-1">
+                <div>
+                    <input
+                            type="radio"
+                            id="is-ranking-playground"
+                            name="ranking-playground"
+                            class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                            value="ranking"
+                            checked>
+                    <label for="is-ranking-playground" class="text-gray-300">Rank</label>
+                </div>
+                <div>
+                    <input
+                            type="radio"
+                            id="is-news-playground"
+                            name="news-playground"
+                            value="news"
+                            class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed">
+                    <label for="is-news-playground" class="text-gray-300">News</label>
+                </div>
+            </div>
+        </div>
+
         <div class="mb-6">
             <label class="font-bold text-gray-300" for="saved-prompts">Select a Saved Prompt</label>
             <select id="saved-prompts" name="saved-prompts"
@@ -19,9 +42,6 @@
             </select>
         </div>
 
-        <!-- This section will be replaced when the user selects a saved prompt -->
-        <div id="select-options" class="mb-6">
-        </div>
 
         <div class="my-6">
             <label class="font-bold text-gray-300" for="prompt-value">LLM Transformer Prompt</label>

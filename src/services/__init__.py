@@ -10,8 +10,10 @@ from .llm import (
     make_concurrent_llm_requests_for_stories,
     make_llm_request_for_story_batch,
 )
+from . import cache
 
 __all__ = [
+    "cache",
     "get_stories_by_id",
     "get_table_row_counts",
     "get_vector_search_stories",

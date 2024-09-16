@@ -144,10 +144,9 @@
                   publication: cells[2].textContent,
                   category: cells[3].textContent,
                   score: cells[4] ? parseFloat(cells[4].textContent) : null,
-                  internalStory: cells[5] ? cells[5].textContent : null,
-                  internalStoryPublisher: cells[6] ? cells[6].textContent : null,
-                  internalStoryTime: cells[7] ? cells[7].textContent : null,
-                  internalStorySimilarity: cells[8] ? parseFloat(cells[8].textContent) : null
+                  internal_title: cells[5] ? cells[5].textContent : null,
+                  internal_publisher: cells[6] ? cells[6].textContent : null,
+                  similarity_score: cells[8] ? parseFloat(cells[8].textContent) : null
                 };
               });
 
