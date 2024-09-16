@@ -1,7 +1,6 @@
 import json
 import os
 
-
 CACHE_FILE = "cached_news_ranking_result.json"
 
 

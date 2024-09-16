@@ -11,7 +11,7 @@
                             name="ranking-playground"
                             class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
                             value="ranking"
-                            checked>
+                    >
                     <label for="is-ranking-playground" class="text-gray-300">Rank</label>
                 </div>
                 <div>
@@ -19,8 +19,9 @@
                             type="radio"
                             id="is-news-playground"
                             name="news-playground"
-                            value="news"
-                            class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed">
+                            value="nes"
+                            class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                            checked>
                     <label for="is-news-playground" class="text-gray-300">News</label>
                 </div>
             </div>
@@ -30,7 +31,7 @@
             <label class="font-bold text-gray-300" for="saved-prompts">Select a Saved Prompt</label>
             <select id="saved-prompts" name="saved-prompts"
                     class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-                    hx-post="/saved-prompts/"
+                    hx-post="/transform/prompts/"
                     hx-trigger="change"
                     hx-include="[name='saved-prompt']"
                     hx-target="#select-options"
@@ -55,7 +56,7 @@
     <!-- Fixed button at the bottom -->
     <div class="pt-4">
         <button class="w-full py-3 bg-rioRed text-white rounded-md shadow hover:bg-rioRed-dark focus:outline-none"
-                hx-post="/transform-stories/"
+                hx-post="/transform/run/"
                 hx-target="#output-box"
                 hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                 hx-swap="innerHTML"

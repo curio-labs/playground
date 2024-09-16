@@ -1,6 +1,5 @@
 from django.db import IntegrityError
 
-
 from app import models as md
 from src import services
 

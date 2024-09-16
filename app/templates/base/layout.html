@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurioAI Playground</title>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/output.css' %}" type="text/css">
+    <script>
+      // Fetch CSRF token from /utilities/csrf_token
+      document.addEventListener('DOMContentLoaded', function () {
+        fetch('/utility/get-csrf-token/')
+          .then(response => response.text())
+          .then(token => {
+            document.querySelectorAll('[name=csrf-token]').forEach(function (input) {
+              input.value = token;
+            });
+          });
+      });
+
+      function showSuccessSavedMessage() {
+        const messageDiv = document.getElementById('savedMessage');
+        messageDiv.classList.remove('hidden');
+      }
+
+      function showErrorSavedMessage(message) {
+        const messageDiv = document.getElementById('errorMessage');
+        messageDiv.classList.remove('hidden');
+        messageDiv.textContent = message
+      }
+
+      function removeSuccessSavedMessage() {
+        const messageDiv = document.getElementById('savedMessage');
+        messageDiv.classList.add('hidden');
+      }
+
+      function removeErrorSavedMessage() {
+        const messageDiv = document.getElementById('errorMessage');
+        messageDiv.classList.add('hidden');
+      }
+
+      document.addEventListener("htmx:beforeRequest", function (event) {
+        const id = event.detail.elt.id;
+        if (id === "save-button" || id === "run-button" || id === "rerank-button") {
+          removeErrorSavedMessage()
+          removeSuccessSavedMessage()
+        }
+      });
+
+      document.addEventListener("htmx:afterRequest", function (event) {
+        if (event.detail.elt.id === "save-button") {
+          if (event.detail.xhr.status === 200) {
+            removeErrorSavedMessage()
+            showSuccessSavedMessage();
+          } else if (event.detail.xhr.status === 400) {
+            const response = JSON.parse(event.detail.xhr.responseText);
+            removeSuccessSavedMessage()
+            showErrorSavedMessage(response.error); // Show error message from API
+          }
+        }
+      });
+    </script>
+</head>
+
+<body class="h-screen bg-black">
+{% include 'base/navbar.html' %}
+
+
+<div class="flex">
+    {% include 'shared/loading_indicator.html' %}
+    {% block content %}{% endblock %}
+</div>
+
+
+</body>
+<script>
+  document.addEventListener('htmx:beforeRequest', function (event) {
+    document.querySelector('#loading-indicator').classList.remove('hidden');
+  });
+
+  document.addEventListener('htmx:afterRequest', function (event) {
+    document.querySelector('#loading-indicator').classList.add('hidden');
+  });
+</script>
+</html>

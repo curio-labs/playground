@@ -1,9 +1,10 @@
-{% extends 'layout.html' %}
-
+{% extends 'base/layout.html' %}
 
 {% block content %}
+<input name="csrf-token" id="csrf-token" type="hidden"/>
+
 <div class="flex">
-    {% include 'sidebar.html' %}
+    {% include 'news/sidebar.html' %}
 
     <!-- Main Content -->
     <div class="ml-80 mt-16 p-8 w-full h-screen overflow-y-auto text-white">
@@ -17,7 +18,9 @@
         <div id="errorMessage" class="bg-red-100 text-red-800 px-4 py-2 mt-4 rounded hidden">
             <strong>Error:</strong> Something went wrong.
         </div>
-        <div id="output-box" class="mt-4 px-16">
+        <div id="output-box" class="mt-4 px-16 grid grid-cols-1 gap-12">
+            <div id="headline-results"></div>
+            <div id="headline-reranking-results"></div>
         </div>
 
     </div>

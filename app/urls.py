@@ -1,23 +1,31 @@
 from django.urls import path
 
+from app.views import index as index_views
+from app.views import news as news_views
+from app.views import rank as rank_views
+from app.views import stories as story_views
+from app.views import transform as transform_views
+
 from . import utility_views as uv
-from . import views
 
 urlpatterns = [
-    path("", views.index, name="index"),
-    path("score-ranking/", views.score_ranking, name="score_ranking"),
-    path("news-ranking/", views.news_ranking, name="news_ranking"),
+    path("", index_views.index, name="index"),
+    path("rank/", rank_views.RankingView.as_view(), name="rank"),
+    path("rank/<str:action>/", rank_views.RankingView.as_view(), name="rank-action"),
+    path("news/", news_views.NewsView.as_view(), name="news"),
+    path("news/<str:action>/", news_views.NewsView.as_view(), name="news-action"),
+    path("transform/", transform_views.TransformView.as_view(), name="transform"),
     path(
-        "score-ranking-prompt/", views.score_ranking_prompt, name="score_ranking_prompt"
+        "transform/<str:action>/",
+        transform_views.TransformView.as_view(),
+        name="transform-action",
     ),
-    path("transformer/", views.transformer, name="transformer"),
-    path("saved-prompts/", views.saved_prompts_view, name="saved_prompts_view"),
-    path("news-ranking-prompt/", views.news_ranking_prompt, name="news_ranking_prompt"),
-    path("transform-stories/", views.transform_stories, name="transform_stories"),
-    path("save-results/", views.save_results, name="save_results"),
-    path("save-news-results/", views.save_news_results, name="save_news_results"),
-    path("rerank-stories/", views.rerank_stories, name="rerank_stories"),
     path("utility/get-csrf-token/", uv.get_csrf_token, name="get_csrf_token"),
-    path("api/stories/<str:story_id>/", views.get_story_by_id, name="get_story_by_id"),
-    path("api/scripts/<str:story_id>/", views.get_script, name="get_script"),
+    path(
+        "api/stories/<str:story_id>/",
+        story_views.get_story_by_id,
+        name="get_story_by_id",
+    ),
+    path("api/scripts/<str:story_id>/", story_views.get_script, name="get_script"),
+    path("api/scripts/<str:story_id>/", story_views.get_script, name="get_script"),
 ]

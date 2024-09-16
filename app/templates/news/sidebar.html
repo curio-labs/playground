@@ -4,7 +4,6 @@
         <div class="mb-4">
             <label class="font-bold text-gray-300" for="prompt-name">Name</label>
             <input id="prompt-name" name="prompt-name"
-                   value="testing1234"
                    class="w-full mt-1 px-2 py-1 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
                    placeholder="Enter your save name here..."/>
         </div>
@@ -93,7 +92,7 @@
             <textarea name="prompt-value" id="prompt-value"
                       rows="3"
                       class="w-full mt-1 px-2 py-1 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-                      placeholder="Enter your LLM re-ranking prompt here...">technology</textarea>
+                      placeholder="Enter your LLM re-ranking prompt here..."></textarea>
         </div>
     </div>
 
@@ -101,7 +100,7 @@
     <!-- Buttons for Running Prompt -->
     <div class="pt-2 border-t border-gray-600">
         <button class="mb-2 w-full py-3 bg-rioRed text-white rounded-md shadow hover:bg-rioRed-dark focus:outline-none"
-                hx-post="/news-ranking-prompt/"
+                hx-post="/news/run/"
                 hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                 hx-target="#output-box"
                 hx-swap="innerHTML"
@@ -117,7 +116,7 @@
         </button>
         <button class="mb-2 w-full py-3 bg-blue-600 text-white rounded-md shadow hover:bg-gray-600 focus:outline-none"
                 id="save-button"
-                hx-post="/save-news-results/"
+                hx-post="/news/save/"
                 hx-swap="none"
                 hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                 hx-include="
