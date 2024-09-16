@@ -1,87 +1,88 @@
-<div class="fixed top-16 left-0 w-80 h-screen bg-gray-900 text-white p-4 overflow-y-auto">
-    <div class="mb-6">
-        <label class="font-bold text-gray-300" for="prompt-name">Name</label>
-        <input id="prompt-name" name="prompt-name"
-               class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-               placeholder="Enter your save name here..."/>
-    </div>
+<div class="fixed top-16 left-0 w-80 h-[calc(100vh-4rem)] bg-gray-900 text-white px-4 py-2 flex flex-col">
+    <!-- Scrollable content -->
+    <div class="overflow-y-auto flex-grow">
+        <div class="mb-2">
+            <label class="font-bold text-gray-300" for="prompt-name">Name</label>
+            <input id="prompt-name" name="prompt-name"
+                   class="w-full mt-1 px-2 py-1 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+                   placeholder="Enter your save name here..."/>
+        </div>
 
-    <div class="mb-6">
-        <label class="font-bold text-gray-300" for="vector-query">Vector Search</label>
-        <textarea name="vector-query" id="vector-query"
-                  rows="4"
-                  class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-                  placeholder="Enter your vector search here..."></textarea>
-    </div>
-    <div class="mb-6 flex items-center justify-between">
-        <label class="font-bold text-gray-300 " for="start-date">Stories from N days ago</label>
-        <input id="start-date" name="start-date"
-               class="mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-               type="number" value="3"
-               max="100" min="1"/>
-    </div>
+        <div class="mb-2">
+            <label class="font-bold text-gray-300" for="vector-query">Vector Search</label>
+            <textarea name="vector-query" id="vector-query"
+                      rows="2"
+                      class="w-full mt-1 px-2 py-1 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+                      placeholder="Enter your vector search here..."></textarea>
+        </div>
+        <div class="mb-2 flex items-center justify-between">
+            <label class="font-bold text-gray-300 " for="start-date">Stories from N days ago</label>
+            <input id="start-date" name="start-date"
+                   class="mt-1 px-2 py-1 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+                   type="number" value="3"
+                   max="100" min="1"/>
+        </div>
 
 
-    <div class="mb-6">
-        <label class="font-bold text-gray-300" for="prompt-value">LLM Prompt</label>
-        <textarea name="prompt-value" id="prompt-value"
-                  rows="4"
-                  class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-                  placeholder="Enter your LLM prompt here..."></textarea>
-    </div>
-    <div class="mb-6">
-        <div class="font-bold text-white">Sampling</div>
-        <div class="grid grid-cols-2 gap-4 mt-4">
-            <div>
-                <input
-                        type="radio"
-                        id="is-top-sample"
-                        name="sampling-method"
-                        class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
-                        value="top-n"
-                        checked>
-                <label for="is-top-sample" class="text-gray-300">Top N</label>
-            </div>
-            <div>
-                <input
-                        type="radio"
-                        id="is-random-sample"
-                        name="sampling-method"
-                        value="random"
-                        class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed">
-                <label for="is-random-sample" class="text-gray-300">Random</label>
+        <div class="mb-2">
+            <label class="font-bold text-gray-300" for="prompt-value">LLM Prompt</label>
+            <textarea name="prompt-value" id="prompt-value"
+                      rows="2"
+                      class="w-full mt-1 px-2 py-1 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+                      placeholder="Enter your LLM prompt here..."></textarea>
+        </div>
+        <div class="mb-4">
+            <div class="font-bold text-white">Sampling</div>
+            <div class="grid grid-cols-2 gap-1 mt-1">
+                <div>
+                    <input
+                            type="radio"
+                            id="is-top-sample"
+                            name="sampling-method"
+                            class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                            value="top-n"
+                            checked>
+                    <label for="is-top-sample" class="text-gray-300">Top N</label>
+                </div>
+                <div>
+                    <input
+                            type="radio"
+                            id="is-random-sample"
+                            name="sampling-method"
+                            value="random"
+                            class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed">
+                    <label for="is-random-sample" class="text-gray-300">Random</label>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="mb-6 flex justify-between items-center">
-        <label class="font-bold text-gray-300 " for="story-limit">LLM Stories</label>
-        <input id="story-limit" name="story-limit"
-               class="mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-               type="number" value="20"
-               max="100" min="1"/>
-    </div>
-    <div class="mb-6">
-        <div class="font-bold text-white">Select Story Attributes</div>
-        <div class="grid grid-cols-2 gap-4 mt-4">
-            {% for attribute in attributes %}
-            <div>
-                <input
-                        type="checkbox"
-                        id="attribute-{{ attribute.name }}"
-                        name="attribute-{{ attribute.name }}"
-                        value="{{ attribute.name }}"
-                        class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
-                        {% if attribute.default %} checked {% endif %}>
-                <label for="attribute-{{ attribute.name }}" class="text-gray-300">{{ attribute.name|title }}</label>
-            </div>
-            {% endfor %}
+        <div class="mb-4 flex justify-between items-center">
+            <label class="font-bold text-gray-300 " for="story-limit">LLM Stories</label>
+            <input id="story-limit" name="story-limit"
+                   class="mt-1 px-2 py-1 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+                   type="number" value="20"
+                   max="100" min="1"/>
         </div>
-    </div>
+        <div class="mb-2">
+            <div class="font-bold text-white">Select Story Attributes</div>
+            <div class="grid grid-cols-2 gap-2 mt-1">
+                {% for attribute in attributes %}
+                <div>
+                    <input
+                            type="checkbox"
+                            id="attribute-{{ attribute.name }}"
+                            name="attribute-{{ attribute.name }}"
+                            value="{{ attribute.name }}"
+                            class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                            {% if attribute.default %} checked {% endif %}>
+                    <label for="attribute-{{ attribute.name }}" class="text-gray-300">{{ attribute.name|title }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
 
-    <div class="mb-6">
         <div class="font-bold text-white">Search Method</div>
-        <div class="grid grid-cols-2 gap-4 mt-4">
+        <div class="grid grid-cols-2 gap-4 mt-1">
             <div>
                 <input
                         type="checkbox"
@@ -104,11 +105,12 @@
                 <label for="is-gpt-ranking" class="text-gray-300">GPT Ranking</label>
             </div>
         </div>
+
     </div>
 
-    <!-- Buttons for Running Prompt -->
-    <div class="flex flex-col gap-4">
-        <button class="w-full py-3 bg-rioRed text-white rounded-md shadow hover:bg-rioRed-dark focus:outline-none"
+    <!-- Fixed button at the bottom -->
+    <div class="pt-2 border-t border-gray-600">
+        <button class="mb-2 w-full py-3 bg-rioRed text-white rounded-md shadow hover:bg-rioRed-dark focus:outline-none"
                 id="run-button"
                 hx-post="/score-ranking-prompt/"
                 hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
@@ -129,7 +131,7 @@
         >Run
         </button>
 
-        <button class="w-full py-3 bg-gray-700 text-white rounded-md shadow hover:bg-gray-600 focus:outline-none"
+        <button class="mb-2 w-full py-3 bg-gray-700 text-white rounded-md shadow hover:bg-gray-600 focus:outline-none"
                 id="rerank-button"
                 hx-post="/rerank-stories/"
                 hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
@@ -167,4 +169,5 @@
             SAVE
         </button>
     </div>
+
 </div>
