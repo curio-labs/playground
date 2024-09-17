@@ -1,7 +1,6 @@
 import json
 import logging
 
-from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -76,15 +75,25 @@ class NewsView(View, ActionView):
         headline_limit = int(request.POST.get("headline-limit"))
         is_top_headlines = selected_news_feed == "top-headlines"
         story_matching_strategy = request.POST.get("internal-story-matching")
+        dedupe_headlines = request.POST.get("dedupe-headlines")
+        dedupe_headlines = dedupe_headlines == "true"
+        dedupe_thresh = float(request.POST.get("dedupe-threshold"))
 
         logger.info(f"News Ranking | Market: {news_market} | Prompt: {prompt_value}")
 
         try:
-            headlines = services.headlines.get_all_bing_news_headlines(
+            raw_headlines = services.headlines.get_all_bing_news_headlines(
                 market=news_market,
                 use_top_headlines_feed=is_top_headlines,
                 headline_limit=headline_limit,
             )
+            if dedupe_headlines:
+                headlines = services.headlines.dedupe_headlines(
+                    raw_headlines, dedupe_thresh
+                )
+            else:
+                headlines = raw_headlines
+
         except ValueError as e:
             return HttpResponse(f"<p>{e}</p><p>Please try again.</p>")
 
@@ -104,7 +113,7 @@ class NewsView(View, ActionView):
             )
 
         context = {
-            "headlines": headlines,
+            "headlines": raw_headlines,
             "reranked_headlines": reranked_headlines,
             "reranked_headlines_and_stories": list(
                 zip(reranked_headlines, scored_story_matches)

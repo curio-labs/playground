@@ -14,3 +14,4 @@ openai
 whitenoise
 django-celery-beat
 retry
+numpy

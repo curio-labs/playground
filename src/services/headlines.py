@@ -1,4 +1,3 @@
-import enum
 import html
 import logging
 import os
@@ -7,10 +6,12 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 
 import httpx
-from pydantic import BaseModel
+import numpy as np
 from retry import retry
 
+from app.types import Headline, HeadlineStoryQueryStrategy
 from src.services import get_stories_by_id, get_vector_search_stories
+from src.services.llm import openai_text_intra_similarity
 
 SUBSCRIPTION_KEY = os.environ["BING_NEWS_API_KEY"]
 BING_NEWS_TOPIC_URL = "https://api.bing.microsoft.com/v7.0/news"
@@ -23,33 +24,6 @@ class RateLimitedError(Exception):
 
 class BingAPIServerError(Exception):
     pass
-
-
-class Headline(BaseModel):
-    id: str
-    title: str
-    summary: str
-    publication: str
-    category: str
-
-
-class HeadlineStoryQueryStrategy(enum.Enum):
-    USE_TITLE = enum.auto()
-    USE_SUMMARY = enum.auto()
-    USE_TITLE_AND_SUMMARY = enum.auto()
-
-    @staticmethod
-    def from_user_str(user_str: str) -> "HeadlineStoryQueryStrategy":
-        if user_str == "match-on-title":
-            return HeadlineStoryQueryStrategy.USE_TITLE
-        elif user_str == "match-on-summary":
-            return HeadlineStoryQueryStrategy.USE_SUMMARY
-        elif user_str == "match-on-both":
-            return HeadlineStoryQueryStrategy.USE_TITLE_AND_SUMMARY
-        else:
-            raise ValueError(
-                f"Unrecognized user str for HeadlineStoryQueryStrategy: {user_str}"
-            )
 
 
 HTTP_TOO_MANY_REQUEST = 429
@@ -223,3 +197,22 @@ def match_headline_to_internal_story(
             }, best_match_score
         else:
             return best_match_stories[0], best_match_score
+
+
+def dedupe_headlines(
+    headlines: List[Headline], similarity_threshold: float
+) -> List[Headline]:
+    headline_intra_similarity = openai_text_intra_similarity(
+        [headline.summary for headline in headlines]
+    )
+    upper_tri = np.triu(headline_intra_similarity, k=1)
+    dupe_mask = upper_tri > similarity_threshold
+    dupe_pairs = np.argwhere(dupe_mask)
+    exclude_docs = np.zeros(headline_intra_similarity.shape[0], dtype=bool)
+
+    for _i, j in dupe_pairs:
+        exclude_docs[j] = True
+
+    exclude_docs = list(exclude_docs)
+    include_idxs = [idx for idx, exclude in enumerate(exclude_docs) if not exclude]
+    return [headlines[idx] for idx in include_idxs]
