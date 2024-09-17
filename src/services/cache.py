@@ -11,6 +11,6 @@ def cache_result_to_file(data, filename=CACHE_FILE):
 
 def load_cached_result(filename=CACHE_FILE):
     if os.path.exists(filename):
-        with open(filename, "r") as f:
+        with open(filename) as f:
             return json.load(f)
     return None

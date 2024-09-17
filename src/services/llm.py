@@ -5,11 +5,13 @@ import os
 from math import exp
 from typing import List, Optional, Tuple
 
+import numpy as np
 from openai import OpenAI
 from openai.types.chat.chat_completion_token_logprob import TopLogprob
 from pydantic import BaseModel, Field
 
-from .headlines import Headline
+from app.types import Headline, RelevancyScoredHeadline, TokenLogprob
+
 from .utils import TaskList, execute_in_thread_pool
 
 OPEN_AI_DEFAULT_MODEL = "gpt-4o-2024-08-06"
@@ -21,9 +23,6 @@ client = OpenAI()
 LOG = logging.getLogger(__name__)
 
 ZERO_TEMPERATURE = 0.000000001
-
-TokenLogprob = Tuple[str, float]
-RelevancyScoredHeadline = Tuple[Headline, float]
 
 
 class Story(BaseModel):
@@ -295,3 +294,15 @@ def transform_stories(stories, prompt):
     data = result.choices[0].message.parsed.json()
     result = json.loads(data)
     return result["text"]
+
+
+def openai_text_intra_similarity(texts: List[str]) -> np.ndarray:
+    embedding_model = "text-embedding-3-small"
+
+    embeddings = [
+        res.embedding
+        for res in client.embeddings.create(input=texts, model=embedding_model).data
+    ]
+    embeddings_matrix = np.array(embeddings)
+    intra_similarity_matrix = np.dot(embeddings_matrix, embeddings_matrix.T)
+    return intra_similarity_matrix
