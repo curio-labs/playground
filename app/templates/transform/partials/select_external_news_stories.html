@@ -1,0 +1,38 @@
+<div class="space-y-2" id="headline-container">
+    {% if has_story_matches %}
+    {% for reranked_headline, story_match in reranked_headlines_and_stories %}
+    <div class="flex bg-gray-800 p-1 rounded-md hover:bg-gray-700 transition duration-200 cursor-pointer"
+         data-id="headline-{{ forloop.counter }}">
+        <!-- First Section: Small Vertical Slice for Checkbox -->
+        <div class="flex items-center justify-center px-2">
+            <input type="checkbox" id="headline-{{ forloop.counter }}" name="headline-option"
+                   value="{{ reranked_headline.title }}||{{reranked_headline.summary}}"
+                   class="cursor-pointer text-rioRed focus:ring-rioRed">
+        </div>
+
+        <!-- Second Section: Main Content (Title, Summary, Publication, Score) -->
+        <div class="flex-1 pl-1">
+            <div class="flex justify-between">
+                <div class="flex flex-col w-10/12">
+                    <label for="headline-{{ forloop.counter }}"
+                           class="cursor-pointer">
+                        <span class="block font-semibold text-gray-2000 text-xs">
+                            {{ reranked_headline.title }}
+                        </span>
+                        <span class="block text-gray-400 text-xs">
+                            {{ reranked_headline.summary }}
+                        </span>
+                    </label>
+                </div>
+                <div class="flex flex-col text-right w-2/12">
+                    <span class="font-semibold text-xs">{{ reranked_headline.publication }}</span>
+                    <div class="text-xs text-gray-400">
+                        <span>Score: {{ reranked_headline.score|floatformat:4 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+</div>

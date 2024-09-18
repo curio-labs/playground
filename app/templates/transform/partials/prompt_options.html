@@ -1,0 +1,13 @@
+<select id="saved-prompts" name="saved-prompts"
+        class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
+        id="load-story-options"
+        hx-post="/transform/stories/"
+        hx-trigger="change"
+        hx-include="[name='saved-prompt'], [name='playground']"
+        hx-target="#select-options"
+        hx-swap="innerHTML">>
+    <option value="" disabled selected>Select a prompt...</option>
+    {% for prompt in prompts %}
+    <option value="{{ prompt.id }}">{{ prompt.prompt_name }}</option>
+    {% endfor %}
+</select>

@@ -1,6 +1,7 @@
 import json
 import logging
 
+from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -37,17 +38,13 @@ class NewsView(View, ActionView):
         internal_story_matching = request.POST.get("internal-story-matching")
         prompt_value = request.POST.get("prompt-value")
 
-        matched_stories = json.loads(request.POST.get("matched-stories", "[]"))
-        unmatched_stories = json.loads(request.POST.get("unmatched-stories", "[]"))
-
-        if not matched_stories and not unmatched_stories:
+        headlines = request.POST.get("headlines")
+        if not headlines:
             return JsonResponse(
                 {"status": "error", "error": "No stories selected."}, status=400
             )
 
-        stories = [{"matched": True, **story} for story in matched_stories] + [
-            {"matched": False, **story} for story in unmatched_stories
-        ]
+        context = cache.get("cached_context")
 
         results = {
             "prompt_name": prompt_name,
@@ -56,7 +53,7 @@ class NewsView(View, ActionView):
             "headline_limit": headline_limit,
             "internal_story_matching": internal_story_matching,
             "prompt_value": prompt_value,
-            "stories": stories,
+            "context": context,
         }
 
         try:
@@ -122,6 +119,29 @@ class NewsView(View, ActionView):
             else None,
             "has_story_matches": bool(scored_story_matches),
         }
+        headlines = [h.dict() for h in headlines]
+        reranked_headlines = [
+            {**h.dict(), "score": score} for h, score in reranked_headlines
+        ]
+        scored_story_matches = (
+            [{**s[0], "match_score": s[1]} for s in scored_story_matches]
+            if scored_story_matches
+            else None
+        )
+        reranked_headlines_and_stories = (
+            list(zip(reranked_headlines, scored_story_matches))
+            if scored_story_matches
+            else None
+        )
+        has_story_matches = bool(scored_story_matches)
+
+        json_context = {
+            "headlines": headlines,
+            "reranked_headlines": reranked_headlines,
+            "reranked_headlines_and_stories": reranked_headlines_and_stories,
+            "has_story_matches": has_story_matches,
+        }
+        cache.set("cached_context", json_context, timeout=None)
 
         html = render_to_string("news/output.html", context)
         return HttpResponse(html)

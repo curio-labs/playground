@@ -3,46 +3,60 @@
     <div class="overflow-y-auto flex-grow">
         <div class="mb-4">
             <div class="font-bold text-white">Playground</div>
-            <div class="grid grid-cols-2 gap-1 mt-1">
+            <div class="flex flex-col gap-1 mt-1" id="radio-container">
+                <div>
+                    <input
+                            type="radio"
+                            id="is-news-external"
+                            name="playground"
+                            value="news-external"
+                            class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                            checked
+                            hx-post="/transform/prompts/"
+                            hx-trigger="change"
+                            hx-target="#saved-prompts-container"
+                            hx-swap="innerHTML"
+                    >
+                    <label for="is-news-external" class="text-gray-300">External News</label>
+                </div>
+                <div>
+                    <input
+                            type="radio"
+                            id="is-news-internal"
+                            name="playground"
+                            value="news-internal"
+                            class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
+                            hx-post="/transform/prompts/"
+                            hx-trigger="change"
+                            hx-target="#saved-prompts-container"
+                            hx-swap="innerHTML"
+                    >
+                    <label for="is-news-internal" class="text-gray-300">Internal News</label>
+                </div>
                 <div>
                     <input
                             type="radio"
                             id="is-ranking-playground"
-                            name="ranking-playground"
+                            name="playground"
                             class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
                             value="ranking"
-                    >
+                            hx-post="/transform/prompts/"
+                            hx-trigger="change"
+                            hx-target="#saved-prompts-container"
+                            hx-swap="innerHTML">
                     <label for="is-ranking-playground" class="text-gray-300">Rank</label>
-                </div>
-                <div>
-                    <input
-                            type="radio"
-                            id="is-news-playground"
-                            name="news-playground"
-                            value="nes"
-                            class="mr-2 bg-gray-800 border-gray-600 text-rioRed focus:ring-rioRed"
-                            checked>
-                    <label for="is-news-playground" class="text-gray-300">News</label>
                 </div>
             </div>
         </div>
 
-        <div class="mb-6">
-            <label class="font-bold text-gray-300" for="saved-prompts">Select a Saved Prompt</label>
+        <!-- Updated saved prompts -->
+        <div class="mb-6" id="saved-prompts-container">
             <select id="saved-prompts" name="saved-prompts"
-                    class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed"
-                    hx-post="/transform/prompts/"
-                    hx-trigger="change"
-                    hx-include="[name='saved-prompt']"
-                    hx-target="#select-options"
-                    hx-swap="outerHTML">
+                    class="w-full mt-2 p-3 bg-gray-800 text-white rounded-md border border-gray-600 focus:outline-none focus:border-rioRed">
                 <option value="" disabled selected>Select a prompt...</option>
-                {% for prompt in prompts %}
-                <option value="{{ prompt.id }}">{{ prompt.prompt_name }}</option>
-                {% endfor %}
+                <!-- Prompts will be dynamically updated based on playground -->
             </select>
         </div>
-
 
         <div class="my-6">
             <label class="font-bold text-gray-300" for="prompt-value">LLM Transformer Prompt</label>
@@ -60,9 +74,39 @@
                 hx-target="#output-box"
                 hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                 hx-swap="innerHTML"
-                hx-include="[name^=story-option], [name=saved-prompts], [name=prompt-value]"
+                hx-include="
+                [name^=story-option],
+                [name=saved-prompts],
+                [name=prompt-value],
+                [name=playground],
+                [name^=headline-option]
+                "
                 hx-indicator="#loading-indicator">
             Apply Selected Option
         </button>
     </div>
 </div>
+
+<!-- JavaScript -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const newsExternalRadio = document.querySelector('input#is-news-external');
+    if (newsExternalRadio) {
+      newsExternalRadio.checked = true;  // Ensure it's selected by default
+      newsExternalRadio.dispatchEvent(new Event('change'));  // Trigger the change event
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const radioContainer = document.getElementById('radio-container');
+    const outputBox = document.querySelector('#output-box');
+    const selectOptions = document.querySelector('#select-options');
+
+    radioContainer.addEventListener('change', function (event) {
+      if (event.target.name === 'playground') {
+        outputBox.innerHTML = '';
+        selectOptions.innerHTML = '';  // Clear the select options container if needed
+      }
+    });
+  });
+</script>

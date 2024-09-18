@@ -196,6 +196,10 @@ def match_headline_to_internal_story(
                 "publication": "UNKNOWN",
             }, best_match_score
         else:
+            best_match_story = best_match_stories[0]
+            best_match_story["published_at"] = best_match_story[
+                "published_at"
+            ].isoformat()
             return best_match_stories[0], best_match_score
 
 

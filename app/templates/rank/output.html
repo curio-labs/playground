@@ -32,9 +32,9 @@
                 <h3 class="text-lg font-semibold text-gray-200 mb-2">LLM Results ({{llm_stories|length}})</h3>
                 {% for llm_story in llm_stories %}
                 <li class="py-2 border-b border-gray-700 last:border-none text-gray-300 hover:bg-gray-800 rounded-md transition duration-200">
-                    <input type="hidden" name="story-id" value="{{llm_story.id}}"/>
-                    <input type="hidden" name="similarity-score" value="{{llm_story.similarity_score}}"/>
-                    <input type="hidden" name="vector-position" value="{{llm_story.position}}"/>
+                    <input type="hidden" name="llm-story-id" value="{{llm_story.id}}"/>
+                    <input type="hidden" name="llm-similarity-score" value="{{llm_story.similarity_score}}"/>
+                    <input type="hidden" name="llm-vector-position" value="{{llm_story.position}}"/>
                     <a href="/api/stories/{{ llm_story.id }}" id="{{llm_story.id}}" target="_blank"
                        class="cursor-pointer text-base text-gray-100 hover:underline">
                         {{ llm_story.title }}
