@@ -282,6 +282,7 @@ def transform_stories(stories, prompt):
             "text": story["text"],
         }
         content.append(data)
+    prompt += "Do not include any additional json in the response. Return text as html no styling. "
 
     result = client.beta.chat.completions.parse(
         model=OPEN_AI_DEFAULT_MODEL,
@@ -292,8 +293,14 @@ def transform_stories(stories, prompt):
         response_format=LLMTransformStoriesResponse,
     )
     data = result.choices[0].message.parsed.json()
-    result = json.loads(data)
-    return result["text"]
+    result = json.loads(data)["text"]
+
+    # for some reason GPT is returning a double nested text json, when repeating the same request.
+    try:
+        x = json.loads(result)
+        return x["text"]
+    except json.JSONDecodeError:
+        return result
 
 
 def openai_text_intra_similarity(texts: List[str]) -> np.ndarray:

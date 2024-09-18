@@ -2,6 +2,7 @@ from . import cache, sampling
 from .external_data import (
     get_stories,
     get_stories_by_id,
+    get_stories_by_title,
     get_table_row_counts,
     get_vector_search_stories,
 )
@@ -14,6 +15,7 @@ from .llm import (
 __all__ = [
     "cache",
     "get_stories_by_id",
+    "get_stories_by_title",
     "get_table_row_counts",
     "get_vector_search_stories",
     "get_stories",

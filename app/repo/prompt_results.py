@@ -48,7 +48,8 @@ def save(results, playground):
             "internal_story_matching": results["internal_story_matching"],
             "prompt_value": results["prompt_value"],
         }
-        stories = {"data": results["stories"]}
+
+        stories = {"data": results["context"]}
     else:
         raise ValueError(f"Invalid playground '{playground}'")
 
@@ -77,9 +78,6 @@ def get_all():
 
 
 def get_stories_by_prompt_id(prompt_id):
-    result = services.cache.load_cached_result(filename="transformation.json")
-    if result:
-        return result
     prompt_result = md.PromptResult.objects.get(id=prompt_id)
     if prompt_result.playground == "ranking":
         stories = prompt_result.stories["data"]
@@ -110,15 +108,19 @@ def get_stories_by_prompt_id(prompt_id):
             if result:
                 results.append(result)
 
-        results = sorted(results, key=lambda x: x["similarity_score"], reverse=True)
         results = {"type": "ranking", "data": results}
     elif prompt_result.playground == "news":
         stories = prompt_result.stories["data"]
         results = {"type": "news", "data": stories}
-        services.cache.cache_result_to_file(results, filename="transformation.json")
         return results
 
     else:
         raise ValueError(f"Invalid playground '{prompt_result.playground}'")
 
     return results
+
+
+def get_prompts(playground):
+    if playground in ["news-external", "news-internal"]:
+        playground = "news"
+    return md.PromptResult.objects.filter(playground=playground).all()

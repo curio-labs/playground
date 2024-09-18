@@ -162,44 +162,13 @@
                 [name=headline-limit],
                 [name=internal-story-matching]
                 [name=prompt-value],
-                [name=matched-stories],
-                [name=unmatched-stories]"
+                [name=headlines],
+                [name=reranked-headlines],
+                [name=reranked-headlines-and-stories],
+                [name=has-story-matches]
+                "
                 hx-indicator="#loading-indicator">
             SAVE
         </button>
-        <script>
-          // JavaScript to collect matched and unmatched stories
-          document.addEventListener('htmx:configRequest', function (evt) {
-            const matchedStories = [...document.querySelectorAll("#headline-reranking-results table tbody tr")]
-              .map(row => {
-                const cells = row.querySelectorAll('td');
-                return {
-                  title: cells[0].textContent,
-                  summary: cells[1].textContent,
-                  publication: cells[2].textContent,
-                  category: cells[3].textContent,
-                  score: cells[4] ? parseFloat(cells[4].textContent) : null,
-                  internal_title: cells[5] ? cells[5].textContent : null,
-                  internal_publisher: cells[6] ? cells[6].textContent : null,
-                  similarity_score: cells[8] ? parseFloat(cells[8].textContent) : null
-                };
-              });
-
-            const unmatchedStories = [...document.querySelectorAll("#headline-results table tbody tr")]
-              .map(row => {
-                const cells = row.querySelectorAll('td');
-                return {
-                  title: cells[0].textContent,
-                  summary: cells[1].textContent,
-                  publication: cells[2].textContent,
-                  category: cells[3].textContent
-                };
-              });
-
-            console.log(matchedStories);
-            evt.detail.parameters['matched-stories'] = JSON.stringify(matchedStories);
-            evt.detail.parameters['unmatched-stories'] = JSON.stringify(unmatchedStories);
-          });
-        </script>
     </div>
 </div>

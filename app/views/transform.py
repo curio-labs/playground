@@ -30,20 +30,39 @@ class TransformView(View, ActionView):
             return self.run(request)
         elif action == "prompts":
             return self.prompts(request)
+        elif action == "stories":
+            return self.stories(request)
         else:
             return JsonResponse({"error": "Invalid action"}, status=400)
 
     def prompts(self, request):
+        playground_type = request.POST[
+            "playground"
+        ]  # either 'ranking', 'news-internal' or 'news-external'
+        prompts = repo.prompt_results.get_prompts(playground=playground_type)
+        context = {"prompts": prompts}
+        html = render_to_string("transform/partials/prompt_options.html", context)
+
+        return HttpResponse(html)
+
+    def stories(self, request):
         prompt_id = request.POST.get("saved-prompts")
+        type_ = request.POST.get("playground")
         results = repo.prompt_results.get_stories_by_prompt_id(prompt_id=prompt_id)
         if results["type"] == "ranking":
             html = render_to_string(
-                "transform/select_stories.html", {"stories": results["data"]}
+                "transform/partials/select_rank_stories.html",
+                {"stories": results["data"]},
             )
-        elif results["type"] == "news":
-            print(results["data"][0])
+        elif results["type"] == "news" and type_ == "news-external":
             html = render_to_string(
-                "transform/select_news_stories.html", {"stories": results["data"]}
+                "transform/partials/select_external_news_stories.html",
+                results["data"],
+            )
+        elif results["type"] == "news" and type_ == "news-internal":
+            html = render_to_string(
+                "transform/partials/select_internal_news_stories.html",
+                results["data"],
             )
         else:
             raise ValueError(f"Invalid prompt type '{results['type']}'")
@@ -52,10 +71,25 @@ class TransformView(View, ActionView):
     def run(self, request):
         stories = request.POST.getlist("story-option")
         prompt = request.POST.get("prompt-value")
-        results = services.get_stories_by_id(story_ids=stories)["data"]
-        transformation = services.llm.transform_stories(stories=results, prompt=prompt)
+        playground = request.POST.get("playground")
+        if playground == "ranking":
+            results = services.get_stories_by_id(story_ids=stories)["data"]
+            transformation = services.llm.transform_stories(
+                stories=results, prompt=prompt
+            )
+        else:
+            headlines = request.POST.getlist("headline-option")
+            stories = []
+            for o in headlines:
+                title, summary = o.split("||")
+                h = {"title": title, "text": summary}
+                stories.append(h)
+            transformation = services.llm.transform_stories(
+                stories=stories, prompt=prompt
+            )
+            print(transformation)
+            print([i["title"] for i in stories])
         html = render_to_string(
-            "transform/output.html",
-            {"stories": results, "transformation": transformation},
+            "transform/output.html", {"transformation": transformation}
         )
         return HttpResponse(html)

@@ -34,9 +34,9 @@ class RankingView(View, ActionView):
         attribute = request.POST.get("attribute")
         is_vector_search = request.POST.get("is-vector-search")
         is_gpt_ranking = request.POST.get("is-gpt-ranking")
-        story_ids = request.POST.getlist("story-id")
-        similarity_scores = request.POST.getlist("similarity-score")
-        vector_positions = request.POST.getlist("vector-position")
+        story_ids = request.POST.getlist("llm-story-id")
+        similarity_scores = request.POST.getlist("llm-similarity-score")
+        vector_positions = request.POST.getlist("llm-vector-position")
 
         if not prompt_name:
             return JsonResponse(

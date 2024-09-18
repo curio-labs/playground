@@ -176,3 +176,59 @@ def get_vector_search_stories(start_date, limit, vector_search):
     )
     response.raise_for_status()
     return response.json()[0]
+
+
+def get_stories_by_title(story_titles):
+    host = os.environ["REPLICA_HOST"]
+    database = os.environ["REPLICA_DB"]
+    user = os.environ["REPLICA_USER"]
+    password = os.environ["REPLICA_PASSWORD"]
+
+    # do security check on the list and make sure it's a list of uuids
+    if not isinstance(story_titles, list):
+        raise ValueError("story_ids should be a list of story ids")
+
+    story_titles_placeholder = ", ".join(["%s"] * len(story_titles))
+
+    conn = psycopg2.connect(host=host, database=database, user=user, password=password)
+
+    query = f"""
+        SELECT
+            st.id, st.title, s.text, st.published_at, p.name as publication, st.author, st.type, st.classification
+        FROM
+            content_story st
+        INNER JOIN
+            scripts_script s on s.story_id = st.id
+        INNER JOIN
+            content_publication p on p.id = st.publication_id
+        WHERE
+            st.title IN ({story_titles_placeholder})
+        ORDER BY
+            st.published_at DESC;
+    """
+
+    try:
+        cur = conn.cursor()
+        cur.execute(query, (*story_titles,))
+        result = cur.fetchall()
+        table_row_count_dict = [
+            {
+                "id": row[0],
+                "title": row[1],
+                "text": row[2],
+                "published_at": row[3],
+                "publication": row[4],
+                "author": row[5],
+                "type": row[6],
+                "classification": row[7],
+            }
+            for row in result
+        ]
+
+        cur.close()
+        conn.close()
+
+        return {"total": len(table_row_count_dict), "data": table_row_count_dict}
+
+    except Exception:
+        return {}
