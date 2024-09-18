@@ -12,7 +12,7 @@ ENVIRONMENT = env("ENVIRONMENT")
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 if not IS_HEROKU_APP:
     DEBUG = ENVIRONMENT == "development"
-    ALLOWED_HOSTS = ["*.herokuapp.com", "localhost"]
+    ALLOWED_HOSTS = ["*.herokuapp.com", "*.onrender.com", "localhost"]
 else:
     DEBUG = False
     ALLOWED_HOSTS = ["*"]
